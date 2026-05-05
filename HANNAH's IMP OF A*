@@ -1,0 +1,237 @@
+/*
+ * RaceCarDriver.h
+ *
+ *  Created on: Spring, 2026
+ *      Author: bill_booth
+ */
+
+#ifndef RACECARDRIVER_H_
+#define RACECARDRIVER_H_
+
+#include "Racer.h"
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+
+using namespace std;
+
+DIRECTION nextMovePlaceInside_TeamOne();
+
+class RaceCarDriver{
+private:
+	Racer* car;
+
+public:
+	RaceCarDriver(Racer* p = nullptr): car{p}{}
+
+    DIRECTION nextMoveTeamOne(int run = 0) {
+        // FOR BSF 
+        static set<pair<int,int>> walls;
+        static set<pair<int,int>> freeSpaces;
+        static set<pair<int,int>> visited;
+
+        if(run == 0) {
+            // RUN BSF 1 HERE
+        } else if (run == 1) {
+            // RUN BETTER BSF
+        } else {
+            // RUN HEURISTIC
+            auto d = nextMovePlaceInside_TeamOne();
+            return d;
+        }
+    }
+
+};
+
+vector<DIRECTION> nextMove_A_TeamOne(pair<int,int> start, pair<int,int> end, set<pair<int,int>>& wallsM);
+
+/*set<pair<int,int>> wallsM = {
+        {0 , 35},
+        {0, 36},
+        {36, 0},
+        {1, 2},
+        {2, 1},
+        {2, 3}
+};*/
+
+// TODO: need a static of all walls
+
+DIRECTION nextMovePlaceInside_TeamOne() {
+    static vector<DIRECTION> path;
+    static int pathIndex = 0;
+
+    cout << "inside helper " << endl;
+    // Only compute path once
+    if (path.empty()) {
+        set<pair<int,int>> wallsM;
+        path = nextMove_A_TeamOne({0, 0}, {2, 0}, wallsM={}); // FIXME: actual walls
+        for (auto& d : path){
+            if(d == EAST)  cout << "EAST" << endl;
+            if(d == WEST)  cout << "WEST" << endl;
+            if(d == NORTH) cout << "NORTH" << endl;
+            if(d == SOUTH) cout << "SOUTH" << endl;
+        }
+    }
+
+    if (pathIndex < path.size()) {
+        return path[pathIndex++];
+    }
+
+    path.clear();
+    pathIndex = 0;
+
+    return EAST; // fallback
+}
+
+struct A_Details_TeamOne{
+
+    int g;
+    double f, h;
+    int parent1, parent2;
+    int x, y; // where node is in maze
+
+};
+
+bool isValid_TeamOne(int x, int y){
+    return true;
+}
+
+bool isWall_TeamOne(set<pair<int,int>>& wallsM, int r, int c){
+    for (auto& w : wallsM){
+        if (w.first == r && w.second == c) return true;
+    }
+    return false;
+}
+
+vector<DIRECTION> nextMove_A_TeamOne(pair<int, int> start, pair<int, int> end, set<pair<int,int>>& wallsM){
+    A_Details_TeamOne begin{};
+    begin.f = 0;
+    vector<A_Details_TeamOne> open; // open to exploration
+    vector<A_Details_TeamOne> closed; // closed for eval
+
+    // FINAL PATHS FOR FINAL
+    vector<DIRECTION> finalDirection;
+
+    begin.x = start.first;
+    begin.y = start.second; // x and y of current
+    begin.parent1 = -1; // needs init before starting
+    begin.parent2 = -1;
+    begin.g = 0;
+    begin.h = 0;
+    begin.f = 0;
+
+    open.push_back(begin);
+
+    while(!open.empty()){
+        cout << "OPEN SIZE: " << open.size() << endl;
+
+        int bestIndex = 0;
+        for (int i = 1; i < open.size(); i++) {
+            if (open[i].f < open[bestIndex].f) {
+                bestIndex = i;
+            }
+        }
+
+        A_Details_TeamOne q = open[bestIndex];
+        open.erase(open.begin() + bestIndex);
+
+        closed.push_back(q);
+
+        cout << "q: " << q.x << "," << q.y << " open:" << open.size() << endl;
+
+        //  Finding Successors:
+        A_Details_TeamOne succ1{}; A_Details_TeamOne succ2{};
+        A_Details_TeamOne succ3{}; A_Details_TeamOne succ4{};
+
+        succ1.x = q.x + 1; succ1.y = q.y; // EAST
+        succ2.x = q.x-1; succ2.y = q.y; //WEST
+        succ3.x = q.x; succ3.y = q.y-1; // NORTH
+        succ4.x = q.x; succ4.y = q.y+1; // SOUTH
+
+        vector<A_Details_TeamOne> successors = {succ1, succ2, succ3, succ4};
+
+        for (auto& succ : successors){
+
+            // BOUNDS CHECKS
+            cout << "checking succ: " << succ.x << "," << succ.y << endl;
+            cout << "isWall? " << isWall_TeamOne(wallsM, succ.x, succ.y) << endl;
+
+            if (!isValid_TeamOne(succ.x, succ.y)) continue;
+            if (isWall_TeamOne(wallsM, succ.x, succ.y)) {
+                continue; } // needs graph passed in
+            // cant go out of bounds bc it counts as a wall?
+
+            open.push_back(succ);
+
+            if (succ.x == end.first && succ.y == end.second){ // goal so stop
+
+                succ.parent1 = q.x;
+                succ.parent2 = q.y;
+                closed.push_back(succ);
+
+                // Trace back with parents for optimal path
+                A_Details_TeamOne current = succ;
+                while (!(current.x == start.first && current.y == start.second)){
+                    for (auto& node : closed){
+                        if (node.x == current.parent1 && node.y == current.parent2){
+                            // Compare positions to get direction
+                            int dx = current.x - node.x;
+                            int dy = current.y - node.y;
+
+                            if      (dx == 1)  finalDirection.push_back(EAST);
+                            else if (dx == -1) finalDirection.push_back(WEST);
+                            else if (dy == 1)  finalDirection.push_back(SOUTH);
+                            else if (dy == -1) finalDirection.push_back(NORTH);
+
+                            current = node;
+                            break;
+                        }
+                    }
+                }
+
+                // Path is backwards --> reverse it
+                reverse(finalDirection.begin(), finalDirection.end());
+
+                return finalDirection;
+
+            } else {
+                succ.parent1 = q.x; // init parents for later changes
+                succ.parent2 = q.y;
+                succ.g = q.g + 1; // every move is always +1 bc of caridnal direction
+                succ.h = abs(succ.x - end.first) + abs(succ.y - end.second); // find h w/ heuristic
+                succ.f = succ.g + succ.h;
+            }
+
+            bool skip = false;
+            for (auto& open_val : open) {
+                if (open_val.x == succ.x && open_val.y == succ.y) {
+                    if (succ.g >= open_val.g) {
+                        skip = true;
+                    } else {
+                        // Found a better way! Update the existing node
+                        open_val.g = succ.g;
+                        open_val.f = succ.f;
+                        open_val.parent1 = q.x;
+                        open_val.parent2 = q.y;
+                        skip = true; // Skip adding a duplicate, we updated the old one
+                    }
+                    break;
+                }
+            }
+
+            for (auto& closed_val : closed) {
+                if (closed_val.x == succ.x && closed_val.y == succ.y) {
+                    if (succ.g >= closed_val.g) {
+                        skip = true;
+                    }
+                    break;
+                }
+            }
+
+        }
+    }
+    return {}; // no path found?
+}
+
+#endif /* RACECARDRIVER_H_ */
