@@ -29,6 +29,9 @@ private:
 	// Stack used to track taken by car
 	stack<DIRECTION> dfsPath;
 
+	// Starting point of the maze
+	Point startPos = {0, 0}; // Need to replace getLocation.
+
 	// Using a set to track visited locations
 	set<pair<int,int>> visited;
 
@@ -123,12 +126,12 @@ private:
 	}
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// BFS variables
-	queue<point> pointQueue;
+	queue<Point> pointQueue;
 
 	// used to map the points to the path
 	// point doesn't have a comparison operator, so we have to use a pair of ints to represent the point
 	// the point is the parent point 
-	map<pair<int,int>, pair<point, DIRECTION>> parentMap;
+	map<pair<int,int>, pair<Point, DIRECTION>> parentMap;
 	bool isQueueInitialized = false;
 
 	// direction array for BFS
@@ -156,7 +159,7 @@ public:
 	// DIRECTION DFSNextMove() {
 
 	// 	// Retrive the current location of the car
-	// 	point currLoc = car->getLocation();
+	// 	point currLoc = startPos; // car->getLocation();
 
 	// 	// Utilized to track that if all directions have been iterated through
 	// 	int directionsTried = 0;
@@ -203,7 +206,7 @@ public:
 	// TJ's BFS Next Move Implementation
     //TODO: Hannah - the BFS continues, even after finding the end and printing a time. how come?
 	void initializeBFS() {
-		Point start = car->getLocation();
+		Point start = startPos;
 		pointQueue.push(start);
 		parentMap[{start.x, start.y}] = {start, NORTH}; // dummy value to represent the start point
 		isQueueInitialized = true;
@@ -225,7 +228,7 @@ public:
 		}*/
 
 		// take note of the real location of the car
-		Point realLocation = car->getLocation();
+		Point realLocation = startPos;
 
 		Point currentPoint = pointQueue.front();
 		pointQueue.pop();
@@ -356,7 +359,7 @@ public:
 			isFlood = true;
 		}
 
-		Point currLoc = car->getLocation();
+		Point currLoc = startPos; // car->getLocation();
 
 		// Use iteration functions to discover walls.
 		iterationBegin();
