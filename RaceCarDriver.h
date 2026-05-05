@@ -17,6 +17,7 @@
 
 using namespace std;
 
+// Needs to be moved INSIDE the function or he wont count it
 struct Point {
 	int x;
 	int y;
