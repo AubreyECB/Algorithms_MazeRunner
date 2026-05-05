@@ -20,9 +20,6 @@ class RaceCarDriver{
 private:
 	Racer* car;
 
-	// Stack used to track taken by car
-	stack<DIRECTION> dfsPath;
-
 	// Starting point of the maze
 	Point startPos = {0, 0}; // Need to replace getLocation.
 
