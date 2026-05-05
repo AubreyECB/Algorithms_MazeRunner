@@ -29,8 +29,6 @@ private:
 	// Current direction of the car
 	DIRECTION currDir = EAST;
 
-	    }
-
 	// BFS variables
 	queue<Point> pointQueue;
 
