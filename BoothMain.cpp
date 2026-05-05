@@ -96,9 +96,9 @@ int main(int argc, char ** argv)
 
     // why are these commented out??
 	buildMaze(false, cells, walls, g);
-    saveMaze(walls, "C:/Users/Hannah_Ross1/Algorithms_MazeRunner/testFiles/open_right_5x5");
+    saveMaze(walls, "/Users/Blaze/Documents/Intro_To_Algorithms/Algorithms_MazeRunner/testFiles/rightColGone_5x5");
 
-    readMaze(walls, "C:/Users/Hannah_Ross1/Algorithms_MazeRunner/testFiles/open_right_5x5");
+    readMaze(walls, "/Users/Blaze/Documents/Intro_To_Algorithms/Algorithms_MazeRunner/testFiles/rightColGone_5x5");
     //readMaze(walls, "wallMaze2.txt");
     //readMaze(walls, "wallMaze3.txt");
 
@@ -129,7 +129,7 @@ clock.reset();
 					case DOWN_ARROW:  robot.move(SOUTH); break;
 
 				}
-				robot.move(driver.BFSNextMove());  //FIXME: changed from .next move
+				robot.move(driver.DFSNextMove());  //FIXME: changed from .next move
 				legalMove(robot, walls);
 				robot.draw(g);
 				g.update();

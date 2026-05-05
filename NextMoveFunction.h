@@ -42,7 +42,7 @@ using namespace std;
 stack<DIRECTION> dfsPath;
 
 // Using a set to track visited locations
-set<pair<int,int>> visited;
+set<pair<int,int> > visited;
 
 // Current direction of the car
 DIRECTION currDir = EAST;
@@ -98,7 +98,7 @@ bool iterationDone(int count) const {
 
 DIRECTION nextMoveTeamOne() {
 
-    // Retrive the current location of the car
+    // Retrive the current location of the car FIXME: Must remove
     point currLoc = car->getLocation();
 
     // Utilized to track that if all directions have been iterated through
