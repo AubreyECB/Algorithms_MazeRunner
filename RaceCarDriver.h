@@ -1,10 +1,3 @@
-/*
- * RaceCarDriver.h
- *
- *  Created on: Spring, 2026
- *      Author: bill_booth
- */
-
 #ifndef RACECARDRIVER_H_
 #define RACECARDRIVER_H_
 
