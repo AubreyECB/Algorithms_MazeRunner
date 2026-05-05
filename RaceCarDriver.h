@@ -39,143 +39,8 @@ private:
 	// Current direction of the car
 	DIRECTION currDir = EAST;
 
-	// Grid used for Flood Fill implementation.
-	int fGrid[row][col];
-
-	// Boolean to track if flood has been initialized
-	bool isFlood = false;
-    set<pair<int,int>> floodVisited; // for making sure there is no oscillation w walls - H
-
-	// Utilized in stroing discovered walls.
-	set<pair<int,int>> walls;
-
-	// Helper functions for Flood Fill implementation /////////////////////////////////////////////////////////////////////////////////////////////////
-
-	void FloodFilling() {
-		for (int i = 0; i < row; i++) {
-			for (int j = 0; j < col; j++) {
-				fGrid[i][j] = -1; // Initialize all cells to -1 to indicate unvisited
-			}
-		}
-
-		fGrid[row-1][col-1] = 0; // Start from the end point of the maze
-	}
-
-	void FloodFilliation(Point curr, int dist) {
-		// Checking if the path is visisted and/or of equal distance.
-		/*Exit if so.
-		if (fGrid[curr.y][curr.x] != -1 && fGrid[curr.y][curr.x] <= dist) {
-			return;
-		}
-
-		// Procedure to skip walls
-		if (walls.find({curr.x, curr.y}) == walls.end()) {
-			return;
 	    }
 
-		// Intialize the distance
-		fGrid[curr.y][curr.x] = dist;
-
-		// Recursively fill all 4 neighbors with distance + 1
-		FloodFilliation({curr.x + 1, curr.y}, dist + 1); // EAST
-		FloodFilliation({curr.x - 1, curr.y}, dist + 1); // WEST	
-		FloodFilliation({curr.x, curr.y + 1}, dist + 1); // SOUTH
-		FloodFilliation({curr.x, curr.y - 1}, dist + 1); // NORTH*/
-
-        // FIXME: H - Recursion error with 35x20, make iterative instead?
-        cout << "Running at " << row << " by col " << col << endl;
-        queue<pair<point, int>> queue;
-        queue.push({curr, dist});
-        cout << "starting " << (col-1) << ", " << (row-1) << endl;
-        fGrid[curr.y][curr.x] = dist; // end point = 0
-
-        while(!queue.empty()) { // processing one cell at a time
-            point c = queue.front().first;
-            int d = queue.front().second; // find distance
-            queue.pop(); // remove from queue
-
-            point neighbors[4];
-            neighbors[0].x = c.x+1 ; neighbors[0].y = c.y;
-            neighbors[1].x = c.x-1 ; neighbors[1].y = c.y;
-            neighbors[2].x = c.x ; neighbors[2].y = c.y+1;
-            neighbors[3].x = c.x ; neighbors[3].y = c.y-1;
-
-            for(int i = 0; i < 4; i++){
-                point neighbor = neighbors[i];
-
-                cout << "CHecking Bonuds : " << neighbor.x << " " << neighbor.y <<
-                " " << "Size: " << col << "x " << row << endl;
-                if (neighbor.x < 0 || neighbor.x >= col ||
-                    neighbor.y < 0 || neighbor.y >= row) {
-                    cout << "out of bounds, skipping" << endl;
-                    continue;
-                }
-                cout << "in bounds: " << neighbor.x << "," << neighbor.y << endl;
-                cout << "about to check fGrid" << endl;
-                fGrid[neighbor.y][neighbor.x]; // just read it, don't write
-                cout << "fGrid ok" << endl;
-
-                if(car->look(currDir)){ continue;} // skip if a wall
-                cout << "After wall!" <<endl;
-
-                if(fGrid[neighbor.y][neighbor.x] != -1) { continue; } // skip if alr visited
-                cout << "visited alr? " << endl;
-
-                cout << "Made it through? " << neighbor.x << " " << neighbor.y << endl;
-
-                fGrid[neighbor.y][neighbor.x] = d+1; // assign distance and make pair
-                queue.push(make_pair(neighbor, d+1));
-            }
-
-        };
-
-
-    }
-
-
-	// Helper functions for DFS implementation /////////////////////////////////////////////////////////////////////////////////////////////////
-
-	void iterationBegin(){
-		currDir = EAST;
-	}
-
-	// Utilized for iterating through the current direction and returning the resulting point
-	Point iterationCurrent(Point currP) {
-		switch(currDir){
-			case EAST:  currP.x++; break;
-			case SOUTH: currP.y++; break;
-			case WEST:  currP.x--; break;
-			case NORTH: currP.y--; break;
-		}
-		return currP;
-	}
-
-	// Utilzied for iterating through directions in a clockwise manner
-	void iterationAdvance(){
-		switch(currDir){
-			case EAST:  currDir = SOUTH; break;
-			case SOUTH: currDir = WEST; break;
-			case WEST:  currDir = NORTH; break;
-			case NORTH: currDir = EAST; break;
-		}
-	}
-
-	// Utilzied for backtracking when all directions have been iterated through in a counter-clockwise manner
-	DIRECTION iterationFlipped(DIRECTION newDir){
-		switch(newDir){
-			case EAST:  newDir = WEST; break;
-			case SOUTH: newDir = NORTH; break;
-			case WEST:  newDir = EAST; break;
-			case NORTH: newDir = SOUTH; break;
-		}
-		return newDir;
-	}
-
-	// Check if the current direction has been fully iterated through
-	bool iterationDone(int count) const {
-		return count >= 4;
-	}
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// BFS variables
 	queue<Point> pointQueue;
 
@@ -191,20 +56,6 @@ private:
 
 public:
 	RaceCarDriver(Racer* p = nullptr): car{p}{}
-
-
-
-	// Booth's Random Next Move Implementation
-	DIRECTION RandomNextMove(){
-		vector<DIRECTION> pool;
-
-		if(!car->look(EAST))   pool.push_back(EAST);
-		if(!car->look(SOUTH))  pool.push_back(SOUTH);
-		if(!car->look(NORTH))  pool.push_back(NORTH);
-		if(!car->look(WEST))   pool.push_back(WEST);
-
-		return pool[rand() % pool.size()];
-	}
 
 	// // Emeka's DFS Next Move Implementation
 	// DIRECTION DFSNextMove() {
@@ -239,18 +90,6 @@ public:
 	// 			directionsTried++;
 	// 		}
 	// 	}
-
-	// 	// If all directions have been tried, we need to backtrack
-	// 	if (!dfsPath.empty()) {
-	// 		DIRECTION backtrackDir = dfsPath.top();
-	// 		dfsPath.pop();
-	// 		return iterationFlipped(backtrackDir); // Return the direction to backtrack
-	// 	}
-
-	// 	// If the stack is empty, then we have backtracked all the way to the start and there are no more moves to make
-	// 	return EAST; // Default return value (can be changed as needed)
-
-		
 
 	// }
 	
