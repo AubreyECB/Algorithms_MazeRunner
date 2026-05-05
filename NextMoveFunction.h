@@ -38,6 +38,15 @@
 
 using namespace std;
 
+// Stack used to track taken by car
+stack<DIRECTION> dfsPath;
+
+// Using a set to track visited locations
+set<pair<int,int>> visited;
+
+// Current direction of the car
+DIRECTION currDir = EAST;
+
 // description: initialize iteration direction to start (EAST)
 // return: void
 // precondition: currDir is defined
