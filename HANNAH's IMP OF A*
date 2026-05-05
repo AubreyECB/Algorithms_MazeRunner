@@ -153,83 +153,67 @@ vector<DIRECTION> nextMove_A_TeamOne(pair<int, int> start, pair<int, int> end, s
 
         for (auto& succ : successors){
 
-            // BOUNDS CHECKS
-            cout << "checking succ: " << succ.x << "," << succ.y << endl;
-            cout << "isWall? " << isWall_TeamOne(wallsM, succ.x, succ.y) << endl;
-
-            if (!isValid_TeamOne(succ.x, succ.y)) continue;
-            if (isWall_TeamOne(wallsM, succ.x, succ.y)) {
-                continue; } // needs graph passed in
-            // cant go out of bounds bc it counts as a wall?
-
-            open.push_back(succ);
-
-            if (succ.x == end.first && succ.y == end.second){ // goal so stop
-
-                succ.parent1 = q.x;
-                succ.parent2 = q.y;
-                closed.push_back(succ);
-
-                // Trace back with parents for optimal path
-                A_Details_TeamOne current = succ;
-                while (!(current.x == start.first && current.y == start.second)){
-                    for (auto& node : closed){
-                        if (node.x == current.parent1 && node.y == current.parent2){
-                            // Compare positions to get direction
-                            int dx = current.x - node.x;
-                            int dy = current.y - node.y;
-
-                            if      (dx == 1)  finalDirection.push_back(EAST);
-                            else if (dx == -1) finalDirection.push_back(WEST);
-                            else if (dy == 1)  finalDirection.push_back(SOUTH);
-                            else if (dy == -1) finalDirection.push_back(NORTH);
-
-                            current = node;
-                            break;
-                        }
-                    }
-                }
-
-                // Path is backwards --> reverse it
-                reverse(finalDirection.begin(), finalDirection.end());
-
-                return finalDirection;
-
-            } else {
-                succ.parent1 = q.x; // init parents for later changes
-                succ.parent2 = q.y;
-                succ.g = q.g + 1; // every move is always +1 bc of caridnal direction
-                succ.h = abs(succ.x - end.first) + abs(succ.y - end.second); // find h w/ heuristic
-                succ.f = succ.g + succ.h;
-            }
-
-            bool skip = false;
-            for (auto& open_val : open) {
-                if (open_val.x == succ.x && open_val.y == succ.y) {
-                    if (succ.g >= open_val.g) {
-                        skip = true;
-                    } else {
-                        // Found a better way! Update the existing node
-                        open_val.g = succ.g;
-                        open_val.f = succ.f;
-                        open_val.parent1 = q.x;
-                        open_val.parent2 = q.y;
-                        skip = true; // Skip adding a duplicate, we updated the old one
-                    }
-                    break;
-                }
-            }
-
-            for (auto& closed_val : closed) {
-                if (closed_val.x == succ.x && closed_val.y == succ.y) {
-                    if (succ.g >= closed_val.g) {
-                        skip = true;
-                    }
-                    break;
-                }
-            }
-
-        }
+		    if (!isValid_TeamOne(succ.x, succ.y)) continue;
+		    if (isWall_TeamOne(wallsM, succ.x, succ.y)) continue;
+		
+		    // 1. GOAL CHECK FIRST
+		    if (succ.x == end.first && succ.y == end.second){
+		        succ.parent1 = q.x;
+		        succ.parent2 = q.y;
+		        closed.push_back(succ);
+		
+		        A_Details_TeamOne current = succ;
+		        while (!(current.x == start.first && current.y == start.second)){
+		            for (auto& node : closed){
+		                if (node.x == current.parent1 && node.y == current.parent2){
+		                    int dx = current.x - node.x;
+		                    int dy = current.y - node.y;
+		                    if      (dx == 1)  finalDirection.push_back(EAST);
+		                    else if (dx == -1) finalDirection.push_back(WEST);
+		                    else if (dy == 1)  finalDirection.push_back(SOUTH);
+		                    else if (dy == -1) finalDirection.push_back(NORTH);
+		                    current = node;
+		                    break;
+		                }
+		            }
+		        }
+		        reverse(finalDirection.begin(), finalDirection.end());
+		        return finalDirection; // return for car!
+		    }
+		
+		    // 2. SET COSTS
+		    succ.parent1 = q.x;
+		    succ.parent2 = q.y;
+		    succ.g = q.g + 1;
+		    succ.h = abs(succ.x - end.first) + abs(succ.y - end.second);
+		    succ.f = succ.g + succ.h;
+		
+		    // 3. CHECKS FOR SKIPPING
+		    bool skip = false;
+		    for (auto& open_val : open){
+		        if (open_val.x == succ.x && open_val.y == succ.y){
+		            if (succ.g >= open_val.g){
+		                skip = true;
+		            } else {
+		                open_val.g = succ.g;
+		                open_val.f = succ.f;
+		                open_val.parent1 = q.x;
+		                open_val.parent2 = q.y;
+		                skip = true;
+		            }
+		            break;
+		        }
+		    }
+		    for (auto& closed_val : closed){
+		        if (closed_val.x == succ.x && closed_val.y == succ.y){
+		            if (succ.g >= closed_val.g) skip = true;
+		            break;
+		        }
+		    }
+		
+		    // 4. ADD TO OPEN LAST
+		    if (!skip) open.push_back(succ);
+		}
     }
     return {}; // no path found?
 }
