@@ -1,50 +1,29 @@
-/*
- Author: Hannah Ross, Aubrey Bedford, TJ Ojo,
-            Emeka Umeezeoke, Madison Quinter
- Assignment Title:  Group One Function
- Assignment Description: This program inputs the 'a, b, and c'
-            values of the quadratic formula
-            from the user and uses them to calculate the formula's roots.
- Due Date: 5/5/2026
- Date Created: 4/19/2026
- Date Last Modified: 5/5/2026
+#ifndef BFSNEXTMOVE_H_
+#define BFSNEXTMOVE_H_
 
- We began the process on 4/19 meeting as a group over zoom discussing different
- ideas for a general algorithm. We discussed BFS, DFS and a graph scenario, and we
- ultimately ended up deciding to write pseudocode for the BFS and DFS to begin.
- 
- We split the group-work as follows: TJ and Meka would work on the pseudocode and
- implementation of BFS and DFS, and Hannah, Aubrey and Madison would work with SDL
- Plotter and creating test cases and files. Each respective subgroup met throughout
- the week to work on their sections.
- 
- We met again the following week and tested the BFS and DFS implementations on SDL.
- After discussing during the meeting, we decided to try implementing one more
- algorithm, the flood filled algorithm, in order to decrease our time.
- 
- On 5/3, we discussed again and tested the flood filled algorithm; we achived a
- faster runtime and so we decided to use that in our main function.
-*/
+//////////////////////////////////////////////////////////////////////////////////////
+// JUST IMAGINE THAT YOU ARE IN THE DRIVER PUBLIC SPACE AND YOU CAN USE car->look() //
+//////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef NEXTMOVEFUNCTION_H_
-#define NEXTMOVEFUNCTION_H_
-
-#include "Racer.h"
+// libraries needed (add any if need be)
+#include "RaceCarDriver.h"
 #include <stack> // for the stack data structure
 #include <map> // for the map data structure
 #include <queue> // for the queue data structure
 #include <set> // for the set data structure
 #include <utility> // for the pair data structure
 #include <cassert> // for debugging with assert
-#include <vector>
-#include <algorithm>
 
 using namespace std;
 
-// BFS FUNCTIONS AND HELPER FUNCTIONS FOR TEAM ONE
+// take note of the libraries needed
+// need stack, map, set, utility and cassert in Hannah's IMP
+// as of May 6 9:38 AM
+
+// COPY STARTING HERE
 
 // function for inverting a direction (used for backtracking)
-DIRECTION invertDirection(DIRECTION dir) {
+DIRECTION invertDirection_TeamOne(DIRECTION dir) {
     switch (dir) {
         case NORTH: return SOUTH;
         case SOUTH: return NORTH;
@@ -55,7 +34,7 @@ DIRECTION invertDirection(DIRECTION dir) {
 }
 
 // function to update currentLocation with each movement
-void updateCurrentLocation(pair<int, int>& currentLocation, DIRECTION move) {
+void updateCurrentLocation_TeamOne(pair<int, int>& currentLocation, DIRECTION move) {
     switch (move) {
         case NORTH: currentLocation.second--; break;
         case SOUTH: currentLocation.second++; break;
@@ -91,7 +70,7 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
 
     while (!(current.first == start.first && current.second == start.second)) {
         pair<pair<int, int>, DIRECTION> parent = parentMap[{current.first, current.second}];
-        reversed.push_back(invertDirection(parent.second));
+        reversed.push_back(invertDirection_TeamOne(parent.second));
         current = parent.first;
     }
 
@@ -115,7 +94,7 @@ void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         bool isWalll = car->look(directions[i]);
         pair<int, int> neighbor = currentLocation;
-        updateCurrentLocation(neighbor, directions[i]);
+        updateCurrentLocation_TeamOne(neighbor, directions[i]);
 
         // case where there is a wall in the direction we are looking, so we add it to the walls set
         if (isWalll) {
@@ -176,7 +155,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
     if (!pathToTarget.empty()) {
         DIRECTION nextMove = pathToTarget.top();
         pathToTarget.pop();
-        updateCurrentLocation(currentLocation, nextMove);
+        updateCurrentLocation_TeamOne(currentLocation, nextMove);
         return nextMove;
     }
 
@@ -197,7 +176,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
             isPathing = true;
             DIRECTION nextMove = pathToTarget.top();
             pathToTarget.pop();
-            updateCurrentLocation(currentLocation, nextMove);
+            updateCurrentLocation_TeamOne(currentLocation, nextMove);
             return nextMove;
         }
         // if we are at the targetLocation, we now want to explore the area around us
@@ -214,7 +193,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
             isPathing = true;
             DIRECTION nextMove = pathToTarget.top();
             pathToTarget.pop();
-            updateCurrentLocation(currentLocation, nextMove);
+            updateCurrentLocation_TeamOne(currentLocation, nextMove);
             return nextMove;
         }
     }
@@ -224,8 +203,6 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
     assert(false); // should never reach here
 }
 
-// A* FUNCTIONS AND HELPER FUNCTIONS FOR TEAM ONE - Hannah's Implementation
+// END COPY HERE
 
-// TEAM ONE'S NEXTMOVE FUNCTION
-
-#endif
+#endif // BFSNEXTMOVE_H_
