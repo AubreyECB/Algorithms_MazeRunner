@@ -14,8 +14,13 @@
 #include <utility> // for the pair data structure
 #include <cassert> // for debugging with assert
 
-
 using namespace std;
+
+// take note of the libraries needed
+// need stack, map, set, utility and cassert in Hannah's IMP
+// as of May 6 9:38 AM
+
+// COPY STARTING HERE
 
 // function for inverting a direction (used for backtracking)
 DIRECTION invertDirection(DIRECTION dir) {
@@ -80,7 +85,8 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
 void exploreNeighbors_TeamOne(pair<int, int> currentLocation, 
     map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap, 
     queue<pair<int, int>>& pointQueue, 
-    set<pair<int,int>>& walls) {
+    set<pair<int,int>>& walls, 
+    Racer* car) {
     
     const int NUM_DIRECTIONS = 4;
     DIRECTION directions[NUM_DIRECTIONS] = {EAST, SOUTH, WEST, NORTH}; // order of exploration: right, down, left, up
@@ -121,12 +127,14 @@ void initializeBFS_TeamOne(pair<int, int>& startPos,
 }
 
 // function for BFS' next move (meant to be called in nextMoveTeamOne() when run == 0)
-DIRECTION BFSNextMove_TeamOne() {
+DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
+    pair<int, int>& startLocation,
+    pair<int, int>& currentLocation, 
+    Racer* car) {
     // static variables declarations inside function
 
     // Note from TJ: I'm contemplating whether or not I should use color so I'm omitting for now
     static stack<DIRECTION> pathToTarget;
-    static pair<int, int> currentLocation = {0, 0};
     static pair<int, int> targetLocation = {0, 0};
     // start and end location were moved to be local to the TeamOneNextMove()
     static bool isPathing = false;
@@ -180,7 +188,7 @@ DIRECTION BFSNextMove_TeamOne() {
             // explore the neighbors of the targetLocation and add them to the queue if they are valid
             // also add the walls to the walls map that will be globally relative to this function and 
             // local relative to the TeamOneNextMove() function
-            exploreNeighbors_TeamOne(currentLocation, parentMap, pointQueue, walls);
+            exploreNeighbors_TeamOne(currentLocation, parentMap, pointQueue, walls, car);
             pathToTarget = reconstructPath_Backtrack_TeamOne(currentLocation, startLocation, parentMap);
             isPathing = true;
             DIRECTION nextMove = pathToTarget.top();
@@ -194,5 +202,7 @@ DIRECTION BFSNextMove_TeamOne() {
     // just return something
     assert(false); // should never reach here
 }
+
+// END COPY HERE
 
 #endif // BFSNEXTMOVE_H_
