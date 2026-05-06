@@ -64,10 +64,8 @@ public:
         if(run == 0) {
             // RUN BSF 1 HERE
             return BFSNextMove_TeamOne(walls, startLocation, currentLocation, pointQueue, car);
-            for (auto& wall : walls){
-                cout << wall.first << " " << wall.second << endl;
-            }
         } else if (run == 1) {
+            cout << "NEW RUN" << endl;
             // RUN BETTER BSF
             // set endLocation to currentLocation here because
             // at this point, currentLocation is at the end
@@ -77,7 +75,6 @@ public:
             return d;
         }
     }
-
 };
 
 DIRECTION nextMovePlaceInside_TeamOne() {
@@ -284,33 +281,76 @@ stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
 // function for reconstructPath_Backtrack_TeamOne()
 stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
                                                    pair<int, int> end,
+                                                   pair<int, int> target,
                                                    map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap) {
 //FIXME - indices to match the global ------------------------
-    vector<DIRECTION> reversed;
-    pair<int, int> current = end;
-    cout << "start " << start.first << " end " << end.first << endl;
-
+    /*vector<DIRECTION> reversed;
     stack<DIRECTION> path;
 
-    while (!(current.first == start.first && current.second == start.second)) {
-        pair<pair<int, int>, DIRECTION> parent = parentMap[{current.first, current.second}];
-        reversed.push_back(invertDirection(parent.second));
-        current = parent.first;
+    while (current != parentMap[current].first) {
+        cout << " DIRECTION " << parentMap[current].second << endl;
+        path.push(parentMap[current].second);
+        current = parentMap[current].first;
     }
 
-    if (current.first == start.first && current.second == start.second) {
-        //path.push(parentMap[current].second);
-        path.push(EAST);
-        cout << "DIRECTION " << path.top() << endl;
-        return path;
+    /* Loop until we step back to the start node
+    while (current != start) {
+        // parentMap[current] contains {previous_node, direction_to_reach_current}
+        auto entry = parentMap[current];
+        pair<int, int> parent = entry.first;
+        DIRECTION dirTaken = entry.second;
+
+        // Push the direction to the stack
+        path.push(dirTaken);
+
+        // Move current to the parent to continue backtracking
+        current = parent;
     }
+
+    return path;
 
     // reverse so first move is on top of stack
     for (int i = reversed.size() - 1; i >= 0; i--) {
         path.push(reversed[i]);
+    }*/
+
+    stack<DIRECTION> backtrackToStart;
+    stack<DIRECTION> forwardToTarget;
+    stack<DIRECTION> finalPath;
+    pair<int, int> current = end;
+
+    //target == next in BFS
+
+    // Leg 1: walk current → start, inverting directions as we go
+    pair<int,int> node = current;
+    while (node != parentMap.at(node).first) {
+        backtrackToStart.push(invertDirection(parentMap.at(node).second));
+        node = parentMap.at(node).first;
     }
 
-    return path;
+    // Leg 2: walk start → target forward through parentMap
+    node = target;
+    while (node != parentMap.at(node).first) {
+        forwardToTarget.push(parentMap.at(node).second);
+        node = parentMap.at(node).first;
+    }
+
+    // forwardToTarget is reversed (target→start), so it's already in the right
+    // order to push onto finalPath after backtrackToStart
+
+    // Build finalPath: backtrack first, then forward
+    // forwardToTarget goes in first (it's the bottom of the stack)
+    while (!forwardToTarget.empty()) {
+        finalPath.push(forwardToTarget.top());
+        forwardToTarget.pop();
+    }
+    // backtrackToStart goes on top (executes first)
+    while (!backtrackToStart.empty()) {
+        finalPath.push(backtrackToStart.top());
+        backtrackToStart.pop();
+    }
+
+    return finalPath;
 }
 
 void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
@@ -322,17 +362,17 @@ void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
     //FIXME - indices to match the global ------------------------
 
     const int NUM_DIRECTIONS = 4;
-    DIRECTION directions[NUM_DIRECTIONS] = {EAST, SOUTH, WEST, NORTH}; // order of exploration: right, down, left, up
+    DIRECTION directions[NUM_DIRECTIONS] = {NORTH, SOUTH, EAST, WEST}; // order of exploration: right, down, left, up
 
-    for (int i = 0; i < NUM_DIRECTIONS; i++) {
+    /*for (int i = 0; i < NUM_DIRECTIONS; i++) {
         bool isWalll = car->look(directions[i]);
         pair<int, int> neighbor = currentLocation;
         updateCurrentLocation(neighbor, directions[i]);
 
 
         // case where there is a wall in the direction we are looking, so we add it to the walls set
-        if (isWalll) {
-            cout << neighbor.first << " " << neighbor.second << endl;
+        if (isWalll && neighbor.first >= 0 && neighbor.second >= 0) {
+            cout << "Wall? " << neighbor.first << " " << neighbor.second << endl;
             walls.insert({neighbor.first, neighbor.second});
         }
 
@@ -345,6 +385,22 @@ void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
                 parentMap[{neighbor.first, neighbor.second}] = {currentLocation, directions[i]};
                 pointQueue.push(neighbor);
             }
+        }
+    }*/
+
+    for (int i = 0; i < NUM_DIRECTIONS; i++) {
+        bool isWall = car->look(directions[i]);
+        pair<int, int> neighbor = currentLocation;
+        updateCurrentLocation(neighbor, directions[i]);
+
+        if (isWall) {
+            // wall — add to walls set, never touch parentMap
+            walls.insert({neighbor.first, neighbor.second});
+        }
+        else if (parentMap.find(neighbor) == parentMap.end()) {
+            // open path we haven't visited — add to parentMap and queue
+            parentMap[neighbor] = {currentLocation, directions[i]};
+            pointQueue.push(neighbor);
         }
     }
 }
@@ -386,8 +442,6 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
         initializeBFS_TeamOne(currentLocation, pointQueue, parentMap, isQueueInitialized);
     }
 
-    cout << "PQ SIZE " << pointQueue.size() << endl;
-
     // if the pathing buffer has stuff in it, pop and return the next move
     if (!pathToTarget.empty()) {
         DIRECTION nextMove = pathToTarget.top();
@@ -399,7 +453,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
     // set boolean to false so we can start the pathfinding and traversal process again
     isPathing = false;
 
-    // loop while the pointQueue is not empty and we are not currently pathing to a target
+    /* loop while the pointQueue is not empty and we are not currently pathing to a target
     // literally should never stop :)
     while (!pointQueue.empty() && !isPathing) {
         // peek at the targetLocation from the from of the queue
@@ -435,6 +489,41 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
             updateCurrentLocation(currentLocation, nextMove);
             cout << "RETURNING " << nextMove << endl;
             return nextMove;
+        }
+    }*/
+
+    while (!pointQueue.empty() && !isPathing) {
+        targetLocation = pointQueue.front();
+
+        if (!(currentLocation.first == targetLocation.first &&
+              currentLocation.second == targetLocation.second)) {
+            // path to the next unvisited node
+            //pathToTarget = reconstructPath_TeamOne(currentLocation, targetLocation, parentMap);
+            cout << "Building path from: " << currentLocation.first << "," << currentLocation.second
+                 << " to target: " << targetLocation.first << "," << targetLocation.second << endl;
+            //pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, targetLocation, parentMap);
+
+            if (parentMap.count(targetLocation) &&
+                parentMap.at(targetLocation).first == currentLocation) {
+                pathToTarget = stack<DIRECTION>();
+                pathToTarget.push(parentMap.at(targetLocation).second);
+            } else {
+                pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, targetLocation, parentMap);
+            }
+
+            cout << "PATH SIZE " << pathToTarget.size() << endl;
+            isPathing = true;
+            DIRECTION nextMove = pathToTarget.top();
+            pathToTarget.pop();
+            updateCurrentLocation(currentLocation, nextMove);
+            return nextMove;
+        }
+        else {
+            // arrived at target, explore and move on
+            pointQueue.pop();
+            isPathing = false;
+            exploreNeighbors_TeamOne(currentLocation, parentMap, pointQueue, walls, car);
+            // loop back up - will now path toward next queue entry
         }
     }
     // if you are getting here, it means the queue is empty and you haven't found the target
