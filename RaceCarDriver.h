@@ -1,3 +1,10 @@
+/*
+ * RaceCarDriver.h
+ *
+ *  Created on: Spring, 2026
+ *      Author: bill_booth
+ */
+
 #ifndef RACECARDRIVER_H_
 #define RACECARDRIVER_H_
 
@@ -5,236 +12,435 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
-#include <stack>
-#include <cassert>
+
 
 using namespace std;
 
-// Needs to be moved INSIDE the function or he wont count it
-struct Point {
-	int x;
-	int y;
-};
+DIRECTION nextMovePlaceInside_TeamOne();
+DIRECTION invertDirection(DIRECTION dir);
+void updateCurrentLocation(pair<int, int>& currentLocation, DIRECTION move);
+stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
+                                         pair<int, int> end,
+                                         map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap);
+stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
+                                                   pair<int, int> end,
+                                                   map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap);
+void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
+                              map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap,
+                              queue<pair<int, int>>& pointQueue,
+                              set<pair<int,int>>& walls,
+                              Racer* car);
+void initializeBFS_TeamOne(pair<int, int>& startPos,
+                           queue<pair<int, int>>& pointQueue,
+                           map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap,
+                           bool& isQueueInitialized);
+DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
+                              pair<int, int>& startLocation,
+                              pair<int, int>& currentLocation,
+                              queue<pair<int, int>>& pointQueue,
+                              Racer* car);
+vector<DIRECTION> nextMove_A_TeamOne(pair<int,int> start, pair<int,int> end, set<pair<int,int>>& wallsM);
+
 
 class RaceCarDriver{
 private:
-	Racer* car;
-
-	// Starting point of the maze
-	Point startPos = {0, 0}; // Need to replace getLocation.
-
-	// Using a set to track visited locations
-	set<pair<int,int>> visited;
-
-	// Current direction of the car
-	DIRECTION currDir = EAST;
-
-	// BFS variables
-	queue<Point> pointQueue;
-
-	// used to map the points to the path
-	// point doesn't have a comparison operator, so we have to use a pair of ints to represent the point
-	// the point is the parent point 
-	map<pair<int,int>, pair<Point, DIRECTION>> parentMap;
-	bool isQueueInitialized = false;
-
-	// direction array for BFS
-	const DIRECTION directions[4] = {EAST, SOUTH, NORTH, WEST};
-
+    Racer* car;
 
 public:
-	RaceCarDriver(Racer* p = nullptr): car{p}{}
+    RaceCarDriver(Racer* p = nullptr): car{p}{}
 
-	// // Emeka's DFS Next Move Implementation
-	// DIRECTION DFSNextMove() {
+    DIRECTION nextMoveTeamOne(int run = 0) {
+        // FOR BSF
+        static set<pair<int,int>> walls;
+        static set<pair<int,int>> freeSpaces;
+        static set<pair<int,int>> visited;
+        static queue<pair<int, int>> pointQueue;
 
-	// 	// Retrive the current location of the car
-	// 	point currLoc = startPos; // car->getLocation();
+        // from TJ
+        static pair<int, int> startLocation = {0, 0};
+        static pair<int, int> endLocation = {0, 0};
+        static pair<int, int> currentLocation = {0, 0};
 
-	// 	// Utilized to track that if all directions have been iterated through
-	// 	int directionsTried = 0;
-
-	// 	while (!iterationDone(directionsTried)) {
-	// 		// Getting the neighboring point in the current direction
-	// 		point neighbor = iterationCurrent(currLoc);
-
-	// 		// Check if the neighboring point is open and unvisited
-	// 		if (!car->look(currDir) && visited.find({neighbor.x, neighbor.y}) == visited.end()) {
-	// 			 DIRECTION moveDir = currDir; // Store the direction to move before modifying currDir
-
-	// 			// If it is, push the current direction to the stack and return it
-	// 			iterationBegin(); // Reset the current direction to EAST for the next iteration
-
-	// 			// Mark the current location as visited
-	// 			visited.insert({neighbor.x, neighbor.y});
-				
-	// 			dfsPath.push(moveDir); // Push the direction to the stack before returning
-	// 			return moveDir;
-	// 		} 
-			
-	// 		else {
-	// 			// If it isn't, advance to the next direction and increment the directionsTried counter
-	// 			iterationAdvance();
-	// 			directionsTried++;
-	// 		}
-	// 	}
-
-	// }
-	
-	// TJ's BFS Next Move Implementation
-    //TODO: Hannah - the BFS continues, even after finding the end and printing a time. how come?
-	void initializeBFS() {
-		Point start = startPos;
-		pointQueue.push(start);
-		parentMap[{start.x, start.y}] = {start, NORTH}; // dummy value to represent the start point
-		isQueueInitialized = true;
-	}
-
-	DIRECTION BFSNextMove() {
-		// initialize the point queue if this is the first BFS Run
-		if (!isQueueInitialized) {
-			initializeBFS();
-		}
-
-		// case where queue is empty before looking for next move
-
-		// this case should never happen because the mazes have guaranteed solutions
-        //FIXME: I commented out bc it threw assert before end - H
-		/*if (pointQueue.empty()) {
-			assert(false);
-			return EAST;
-		}*/
-
-		// take note of the real location of the car
-		Point realLocation = startPos;
-
-		Point currentPoint = pointQueue.front();
-		pointQueue.pop();
-
-		// car is set to the current point so we can look around it and find its neighbors
-        cout << "about to teleport to: " << currentPoint.x << "," << currentPoint.y << endl; // cheking a print
-        car->setLocation(currentPoint);
-
-        //FIXME: H - the code is segfaulting for pixeling, think its looking too far (out of bounds) - check here:
-        if(currentPoint.x < 0 || currentPoint.y < 0 ||
-           currentPoint.x >= col || currentPoint.y >= row) {
-            cout << "within bounds!" << endl;
-            car->setLocation(realLocation);
-
-            cout << "realLocation: " << realLocation.x << "," << realLocation.y << endl;
-            cout << "queue size: " << pointQueue.size() << endl;
+        if(run == 0) {
+            // RUN BSF 1 HERE
+            return BFSNextMove_TeamOne(walls, startLocation, currentLocation, pointQueue, car);
+            for (auto& wall : walls){
+                cout << wall.first << " " << wall.second << endl;
+            }
+        } else if (run == 1) {
+            // RUN BETTER BSF
+            // set endLocation to currentLocation here because
+            // at this point, currentLocation is at the end
+        } else {
+            // RUN HEURISTIC
+            auto d = nextMovePlaceInside_TeamOne();
+            return d;
         }
-
-		const int DIRECTIONS = 4;
-
-		for (int i = 0; i < DIRECTIONS; i++) {
-			// case where the move is open
-			if (!car->look(directions[i])) {
-				// set nextPoint to currentPoint so we have a reference
-
-                cout << "looking direction: " << directions[i] << endl; // print for checking
-
-                Point neighbor = currentPoint;
-				if (directions[i] == EAST) {
-					neighbor.x++;
-				} else if (directions[i] == SOUTH) {
-					neighbor.y++;
-				} else if (directions[i] == WEST) {
-					neighbor.x--;
-				} else if (directions[i] == NORTH) {
-					neighbor.y--;
-				}
-
-				// make sure we haven't already been to nextPoint
-				pair<int, int> neighborPair = make_pair(neighbor.x, neighbor.y);
-				// case where we haven't been to neighbor
-				if (parentMap.find(neighborPair) == parentMap.end()) {
-					parentMap[neighborPair] = {currentPoint, directions[i]};
-
-                    //FIXME: H - ensuring it doesnt push junk
-                    cout << "pushing neighbor: " << neighbor.x << "," << neighbor.y << endl;
-					pointQueue.push(neighbor);
-				}
-			}
-		}
-
-		// set back to the real location of the car before returning the next move
-		car->setLocation(realLocation);
-
-		// this case should never happen because the mazes have guaranteed solutions
-		if (pointQueue.empty()) {
-			//assert(false); // H - remove assert? whys that there
-			return EAST;
-		}
-
-		Point nextPoint = pointQueue.front();
-		//int displacementX = nextPoint.x - realLocation.x;
-		//int displacementY = nextPoint.y - realLocation.y;
-		//based on the displacement, determine the direction to move
-		// if there are no points, skip it
-		/*if (displacementX == 1 && displacementY == 0) {
-			return EAST;
-		}
-		else if (displacementX == -1 && displacementY == 0) {
-			return WEST;
-		}
-		else if (displacementX == 0 && displacementY == 1) {
-			return SOUTH;
-		}
-		else if (displacementX == 0 && displacementY == -1) {
-			return NORTH;
-		}
-		else {
-			pointQueue.pop();
-			return BFSNextMove();
-		} */
-
-        /**TODO: H - this loop is the same as your code above, just w/o the recursion piece:
-         * The recursive piece was causing a seg fault since bfs was trying to access and look
-         * at points too far in advance, and trying to call on those points - but they're null/out of bounds
-         * the for loop allows for checking, but only the adjacent points, that can be accessed w data
-         * are called on and used- or else skipped
-         * */
-
-        while (!pointQueue.empty()) {
-            Point nextPoint = pointQueue.front();
-            int displacementX = nextPoint.x - realLocation.x;
-            int displacementY = nextPoint.y - realLocation.y;
-
-            if (displacementX == 1 && displacementY == 0) return EAST;
-            else if (displacementX == -1 && displacementY == 0) return WEST;
-            else if (displacementX == 0 && displacementY == 1) return SOUTH;
-            else if (displacementX == 0 && displacementY == -1) return NORTH;
-            else pointQueue.pop();
-        }
-
-        //assert(false); // should never reach here - so why is itt here
-        return EAST;
-	}
-
-
-
-	// this is gievn that we keep track of the start and end points of the maze
-	vector<DIRECTION> reconstructPath(Point start, Point end) {
-		vector<DIRECTION> path;
-		Point current = end;
-
-		while (!(current.x == start.x && current.y == start.y)) {
-			pair<Point, DIRECTION> parent = parentMap[{current.x, current.y}];
-			path.push_back(parent.second);
-			current = parent.first;
-		}
-
-		reverse(path.begin(), path.end());
-		return path;
-	}
-
-
-	DIRECTION nextMoveTeamOne() {
-		
-	}
+    }
 
 };
 
+DIRECTION nextMovePlaceInside_TeamOne() {
+    static vector<DIRECTION> path;
+    static int pathIndex = 0;
+
+    cout << "inside helper " << endl;
+    // Only compute path once
+    if (path.empty()) {
+        set<pair<int,int>> wallsM;
+        path = nextMove_A_TeamOne({0, 0}, {2, 0}, wallsM={}); // FIXME: actual walls
+        for (auto& d : path){
+            if(d == EAST)  cout << "EAST" << endl;
+            if(d == WEST)  cout << "WEST" << endl;
+            if(d == NORTH) cout << "NORTH" << endl;
+            if(d == SOUTH) cout << "SOUTH" << endl;
+        }
+    }
+
+    if (pathIndex < path.size()) {
+        return path[pathIndex++];
+    }
+
+    path.clear();
+    pathIndex = 0;
+
+    return EAST; // fallback
+}
+
+struct A_Details_TeamOne{
+
+    int g;
+    double f, h;
+    int parent1, parent2;
+    int x, y; // where node is in maze
+
+};
+
+bool isValid_TeamOne(int x, int y){
+    return true;
+}
+
+bool isWall_TeamOne(set<pair<int,int>>& wallsM, int r, int c){
+    for (auto& w : wallsM){
+        if (w.first == r && w.second == c) return true;
+    }
+    return false;
+}
+
+vector<DIRECTION> nextMove_A_TeamOne(pair<int, int> start, pair<int, int> end, set<pair<int,int>>& wallsM){
+    A_Details_TeamOne begin{};
+    begin.f = 0;
+    vector<A_Details_TeamOne> open; // open to exploration
+    vector<A_Details_TeamOne> closed; // closed for eval
+
+    // FINAL PATHS FOR FINAL
+    vector<DIRECTION> finalDirection;
+
+    begin.x = start.first;
+    begin.y = start.second; // x and y of current
+    begin.parent1 = -1; // needs init before starting
+    begin.parent2 = -1;
+    begin.g = 0;
+    begin.h = 0;
+    begin.f = 0;
+
+    open.push_back(begin);
+
+    while(!open.empty()){
+        cout << "OPEN SIZE: " << open.size() << endl;
+
+        int bestIndex = 0;
+        for (int i = 1; i < open.size(); i++) {
+            if (open[i].f < open[bestIndex].f) {
+                bestIndex = i;
+            }
+        }
+
+        A_Details_TeamOne q = open[bestIndex];
+        open.erase(open.begin() + bestIndex);
+
+        closed.push_back(q);
+
+        cout << "q: " << q.x << "," << q.y << " open:" << open.size() << endl;
+
+        //  Finding Successors:
+        A_Details_TeamOne succ1{}; A_Details_TeamOne succ2{};
+        A_Details_TeamOne succ3{}; A_Details_TeamOne succ4{};
+
+        succ1.x = q.x + 1; succ1.y = q.y; // EAST
+        succ2.x = q.x-1; succ2.y = q.y; //WEST
+        succ3.x = q.x; succ3.y = q.y-1; // NORTH
+        succ4.x = q.x; succ4.y = q.y+1; // SOUTH
+
+        vector<A_Details_TeamOne> successors = {succ1, succ2, succ3, succ4};
+
+        for (auto& succ : successors){
+
+            if (!isValid_TeamOne(succ.x, succ.y)) continue;
+            if (isWall_TeamOne(wallsM, succ.x, succ.y)) continue;
+
+            // 1. GOAL CHECK FIRST
+            if (succ.x == end.first && succ.y == end.second){
+                succ.parent1 = q.x;
+                succ.parent2 = q.y;
+                closed.push_back(succ);
+
+                A_Details_TeamOne current = succ;
+                while (!(current.x == start.first && current.y == start.second)){
+                    for (auto& node : closed){
+                        if (node.x == current.parent1 && node.y == current.parent2){
+                            int dx = current.x - node.x;
+                            int dy = current.y - node.y;
+                            if      (dx == 1)  finalDirection.push_back(EAST);
+                            else if (dx == -1) finalDirection.push_back(WEST);
+                            else if (dy == 1)  finalDirection.push_back(SOUTH);
+                            else if (dy == -1) finalDirection.push_back(NORTH);
+                            current = node;
+                            break;
+                        }
+                    }
+                }
+                reverse(finalDirection.begin(), finalDirection.end());
+                return finalDirection; // return for car!
+            }
+
+            // 2. SET COSTS
+            succ.parent1 = q.x;
+            succ.parent2 = q.y;
+            succ.g = q.g + 1;
+            succ.h = abs(succ.x - end.first) + abs(succ.y - end.second);
+            succ.f = succ.g + succ.h;
+
+            // 3. CHECKS FOR SKIPPING
+            bool skip = false;
+            for (auto& open_val : open){
+                if (open_val.x == succ.x && open_val.y == succ.y){
+                    if (succ.g >= open_val.g){
+                        skip = true;
+                    } else {
+                        open_val.g = succ.g;
+                        open_val.f = succ.f;
+                        open_val.parent1 = q.x;
+                        open_val.parent2 = q.y;
+                        skip = true;
+                    }
+                    break;
+                }
+            }
+            for (auto& closed_val : closed){
+                if (closed_val.x == succ.x && closed_val.y == succ.y){
+                    if (succ.g >= closed_val.g) skip = true;
+                    break;
+                }
+            }
+
+            // 4. ADD TO OPEN LAST
+            if (!skip) open.push_back(succ);
+        }
+    }
+    return {}; // no path found?
+}
+
+// BFS FUNCTIONS AND HELPER FUNCTIONS FOR TEAM ONE
+
+// function for inverting a direction (used for backtracking)
+DIRECTION invertDirection(DIRECTION dir) {
+    switch (dir) {
+        case NORTH: return SOUTH;
+        case SOUTH: return NORTH;
+        case EAST:  return WEST;
+        case WEST:  return EAST;
+        default: return NORTH; // default case, should never reach here
+    }
+}
+
+// function to update currentLocation with each movement
+void updateCurrentLocation(pair<int, int>& currentLocation, DIRECTION move) {
+    switch (move) {
+        case NORTH: currentLocation.second--; cout << "N" << endl; break;
+        case SOUTH: currentLocation.second++; cout << "S" << endl; break;
+        case EAST:  currentLocation.first++; cout << "E" << endl; break;
+        case WEST:  currentLocation.first--; cout << "W" << endl; break;
+    }
+}
+
+// function for reconstructPath_TeamOne()
+stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
+                                         pair<int, int> end,
+                                         map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap) {
+
+    stack<DIRECTION> path;
+    pair<int, int> current = end;
+
+    while (!(current.first == start.first && current.second == start.second)) {
+        pair<pair<int, int>, DIRECTION> parent = parentMap[{current.first, current.second}];
+        path.push(parent.second);
+        current = parent.first;
+    }
+
+    return path;
+}
+
+// function for reconstructPath_Backtrack_TeamOne()
+stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
+                                                   pair<int, int> end,
+                                                   map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap) {
+//FIXME - indices to match the global ------------------------
+    vector<DIRECTION> reversed;
+    pair<int, int> current = end;
+    cout << "start " << start.first << " end " << end.first << endl;
+
+    stack<DIRECTION> path;
+
+    while (!(current.first == start.first && current.second == start.second)) {
+        pair<pair<int, int>, DIRECTION> parent = parentMap[{current.first, current.second}];
+        reversed.push_back(invertDirection(parent.second));
+        current = parent.first;
+    }
+
+    if (current.first == start.first && current.second == start.second) {
+        //path.push(parentMap[current].second);
+        path.push(EAST);
+        cout << "DIRECTION " << path.top() << endl;
+        return path;
+    }
+
+    // reverse so first move is on top of stack
+    for (int i = reversed.size() - 1; i >= 0; i--) {
+        path.push(reversed[i]);
+    }
+
+    return path;
+}
+
+void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
+                              map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap,
+                              queue<pair<int, int>>& pointQueue,
+                              set<pair<int,int>>& walls,
+                              Racer* car) {
+
+    //FIXME - indices to match the global ------------------------
+
+    const int NUM_DIRECTIONS = 4;
+    DIRECTION directions[NUM_DIRECTIONS] = {EAST, SOUTH, WEST, NORTH}; // order of exploration: right, down, left, up
+
+    for (int i = 0; i < NUM_DIRECTIONS; i++) {
+        bool isWalll = car->look(directions[i]);
+        pair<int, int> neighbor = currentLocation;
+        updateCurrentLocation(neighbor, directions[i]);
+
+
+        // case where there is a wall in the direction we are looking, so we add it to the walls set
+        if (isWalll) {
+            cout << neighbor.first << " " << neighbor.second << endl;
+            walls.insert({neighbor.first, neighbor.second});
+        }
+
+            // case where there is no wall and there is a neighboring point to add
+            // however, we don't add it willy-nilly, we check if it's already in the parentMap to ensure
+            // we don't add duplicates to the queue, then we add it to the parentMap and the queue
+            // if its not in the parentMap already
+        else {
+            if (parentMap.find({neighbor.first, neighbor.second}) == parentMap.end()) {
+                parentMap[{neighbor.first, neighbor.second}] = {currentLocation, directions[i]};
+                pointQueue.push(neighbor);
+            }
+        }
+    }
+}
+
+// function for initializing the BFS PointQueue
+void initializeBFS_TeamOne(pair<int, int>& startPos,
+                           queue<pair<int, int>>& pointQueue,
+                           map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap,
+                           bool& isQueueInitialized) {
+
+    pair<int, int> start = startPos;
+    pointQueue.push(start);
+    parentMap[{start.first, start.second}] = {start, NORTH}; // dummy value to represent the start point
+    isQueueInitialized = true;
+}
+
+// function for BFS' next move (meant to be called in nextMoveTeamOne() when run == 0)
+DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
+                              pair<int, int>& startLocation,
+                              pair<int, int>& currentLocation,
+                              queue<pair<int, int>>& pointQueue,
+                              Racer* car) {
+    // static variables declarations inside function
+
+    // Note from TJ: I'm contemplating whether or not I should use color so I'm omitting for now
+    static stack<DIRECTION> pathToTarget;
+    static pair<int, int> targetLocation = {0, 0};
+    // start and end location were moved to be local to the TeamOneNextMove()
+    static bool isPathing = false;
+    static bool isQueueInitialized = false;
+    static map<pair<int,int>, pair<pair<int, int>, DIRECTION>> parentMap;
+    // note: walls will also be present in this function because the
+    // TeamOneNextMove() has it statically declared
+
+    // BFS Logic here!
+
+    // if there is nothing in the Queue, give it the starting position
+    if (!isQueueInitialized) {
+        initializeBFS_TeamOne(currentLocation, pointQueue, parentMap, isQueueInitialized);
+    }
+
+    cout << "PQ SIZE " << pointQueue.size() << endl;
+
+    // if the pathing buffer has stuff in it, pop and return the next move
+    if (!pathToTarget.empty()) {
+        DIRECTION nextMove = pathToTarget.top();
+        pathToTarget.pop();
+        updateCurrentLocation(currentLocation, nextMove);
+        return nextMove;
+    }
+
+    // set boolean to false so we can start the pathfinding and traversal process again
+    isPathing = false;
+
+    // loop while the pointQueue is not empty and we are not currently pathing to a target
+    // literally should never stop :)
+    while (!pointQueue.empty() && !isPathing) {
+        // peek at the targetLocation from the from of the queue
+        targetLocation = pointQueue.front();
+
+        // if we aren't at the targetLocation yet, take this branch
+        // we want to build the path to be able to explore targetLocation
+        if (!(currentLocation.first == targetLocation.first &&
+              currentLocation.second == targetLocation.second)) {
+            pathToTarget = reconstructPath_TeamOne(currentLocation, targetLocation, parentMap);
+            isPathing = true;
+            DIRECTION nextMove = pathToTarget.top();
+            pathToTarget.pop();
+            updateCurrentLocation(currentLocation, nextMove);
+            return nextMove;
+        }
+            // if we are at the targetLocation, we now want to explore the area around us
+        else {
+            // dequeue the targetLocation since we are now exploring it
+            pointQueue.pop();
+            // we aren't pathing to a target now, so set it to false
+            isPathing = false;
+            // explore the neighbors of the targetLocation and add them to the queue if they are valid
+            // also add the walls to the walls map that will be globally relative to this function and
+            // local relative to the TeamOneNextMove() function
+            exploreNeighbors_TeamOne(currentLocation, parentMap, pointQueue, walls, car);  //point queue is expree
+            pathToTarget = reconstructPath_Backtrack_TeamOne(currentLocation, startLocation, parentMap);
+            cout << "PATH SIZE " << pathToTarget.size() << endl;
+
+            isPathing = true;
+            DIRECTION nextMove = pathToTarget.top();
+            pathToTarget.pop();
+            updateCurrentLocation(currentLocation, nextMove);
+            cout << "RETURNING " << nextMove << endl;
+            return nextMove;
+        }
+    }
+    // if you are getting here, it means the queue is empty and you haven't found the target
+    // which should never happen since the mazes are guaranteed to have a solution, but if it does
+    // just return something
+    assert(false); // should never reach here
+}
 
 #endif /* RACECARDRIVER_H_ */
