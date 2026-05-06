@@ -31,6 +31,10 @@ public:
         static set<pair<int,int>> freeSpaces;
         static set<pair<int,int>> visited;
 
+        // from TJ
+        static pair<int, int> startLocation = {0, 0};
+        static pair<int, int> endLocation = {0, 0};
+
         if(run == 0) {
             // RUN BSF 1 HERE
         } else if (run == 1) {
