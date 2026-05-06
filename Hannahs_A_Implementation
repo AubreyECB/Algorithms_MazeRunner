@@ -34,11 +34,15 @@ public:
         // from TJ
         static pair<int, int> startLocation = {0, 0};
         static pair<int, int> endLocation = {0, 0};
+        static pair<int, int> currentLocation = {0, 0};
 
         if(run == 0) {
             // RUN BSF 1 HERE
+            BFSNextMove_TeamOne(walls, startLocation, currentLocation);
         } else if (run == 1) {
             // RUN BETTER BSF
+            // set endLocation to currentLocation here because
+            // at this point, currentLocation is at the end
         } else {
             // RUN HEURISTIC
             auto d = nextMovePlaceInside_TeamOne();
