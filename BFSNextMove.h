@@ -141,7 +141,6 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
     static bool isQueueInitialized = false;
     static queue<pair<int, int>> pointQueue;
     static map<pair<int,int>, pair<pair<int, int>, DIRECTION>> parentMap;
-	static set<pair<int,int>> walls; // Added by Emeka Ume-Ezeoke
     // note: walls will also be present in this function because the 
     // TeamOneNextMove() has it statically declared
 
@@ -189,16 +188,8 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
             // explore the neighbors of the targetLocation and add them to the queue if they are valid
             // also add the walls to the walls map that will be globally relative to this function and 
             // local relative to the TeamOneNextMove() function
-<<<<<<< HEAD
             exploreNeighbors_TeamOne(currentLocation, parentMap, pointQueue, walls, car);
             pathToTarget = reconstructPath_Backtrack_TeamOne(currentLocation, startLocation, parentMap);
-=======
-            exploreNeighbors_TeamOne(currentLocation, parentMap, pointQueue, walls);
-            pathToTarget = reconstructPath_Backtrack_TeamOne(currentLocation, pointQueue.front(), parentMap); // EU: Changed middle parameter from 
-																											  // startLocation -> pointQueue.front();
-																											  // - This was done so that the robot isn't returning
-																											  //   to (0,0) every time (unless that's what's wanted).
->>>>>>> 4c3f7d12b1f8ccd4bda839585ceddd4b5a260f1a
             isPathing = true;
             DIRECTION nextMove = pathToTarget.top();
             pathToTarget.pop();
@@ -212,10 +203,6 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
     assert(false); // should never reach here
 }
 
-<<<<<<< HEAD
 // END COPY HERE
 
 #endif // BFSNEXTMOVE_H_
-=======
-#endif // BFSNEXTMOVE_H_
->>>>>>> 4c3f7d12b1f8ccd4bda839585ceddd4b5a260f1a
