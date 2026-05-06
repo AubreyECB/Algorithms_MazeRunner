@@ -23,7 +23,7 @@ using namespace std;
 // COPY STARTING HERE
 
 // function for inverting a direction (used for backtracking)
-DIRECTION invertDirection(DIRECTION dir) {
+DIRECTION invertDirection_TeamOne(DIRECTION dir) {
     switch (dir) {
         case NORTH: return SOUTH;
         case SOUTH: return NORTH;
@@ -34,7 +34,7 @@ DIRECTION invertDirection(DIRECTION dir) {
 }
 
 // function to update currentLocation with each movement
-void updateCurrentLocation(pair<int, int>& currentLocation, DIRECTION move) {
+void updateCurrentLocation_TeamOne(pair<int, int>& currentLocation, DIRECTION move) {
     switch (move) {
         case NORTH: currentLocation.second--; break;
         case SOUTH: currentLocation.second++; break;
@@ -70,7 +70,7 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
 
     while (!(current.first == start.first && current.second == start.second)) {
         pair<pair<int, int>, DIRECTION> parent = parentMap[{current.first, current.second}];
-        reversed.push_back(invertDirection(parent.second));
+        reversed.push_back(invertDirection_TeamOne(parent.second));
         current = parent.first;
     }
 
@@ -94,7 +94,7 @@ void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         bool isWalll = car->look(directions[i]);
         pair<int, int> neighbor = currentLocation;
-        updateCurrentLocation(neighbor, directions[i]);
+        updateCurrentLocation_TeamOne(neighbor, directions[i]);
 
         // case where there is a wall in the direction we are looking, so we add it to the walls set
         if (isWalll) {
@@ -155,7 +155,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
     if (!pathToTarget.empty()) {
         DIRECTION nextMove = pathToTarget.top();
         pathToTarget.pop();
-        updateCurrentLocation(currentLocation, nextMove);
+        updateCurrentLocation_TeamOne(currentLocation, nextMove);
         return nextMove;
     }
 
@@ -176,7 +176,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
             isPathing = true;
             DIRECTION nextMove = pathToTarget.top();
             pathToTarget.pop();
-            updateCurrentLocation(currentLocation, nextMove);
+            updateCurrentLocation_TeamOne(currentLocation, nextMove);
             return nextMove;
         }
         // if we are at the targetLocation, we now want to explore the area around us
@@ -193,7 +193,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
             isPathing = true;
             DIRECTION nextMove = pathToTarget.top();
             pathToTarget.pop();
-            updateCurrentLocation(currentLocation, nextMove);
+            updateCurrentLocation_TeamOne(currentLocation, nextMove);
             return nextMove;
         }
     }
