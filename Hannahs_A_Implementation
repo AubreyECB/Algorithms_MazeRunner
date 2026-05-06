@@ -38,7 +38,7 @@ public:
 
         if(run == 0) {
             // RUN BSF 1 HERE
-            BFSNextMove_TeamOne(walls, startLocation, currentLocation);
+            return BFSNextMove_TeamOne(walls, startLocation, currentLocation, car);
         } else if (run == 1) {
             // RUN BETTER BSF
             // set endLocation to currentLocation here because
