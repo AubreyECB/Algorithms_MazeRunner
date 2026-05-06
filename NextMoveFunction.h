@@ -5,9 +5,9 @@
  Assignment Description: This program inputs the 'a, b, and c'
             values of the quadratic formula
             from the user and uses them to calculate the formula's roots.
- Due Date: 5/5/2026
+ Due Date: 5/6/2026
  Date Created: 4/19/2026
- Date Last Modified: 5/5/2026
+ Date Last Modified: 5/6/2026
 
  We began the process on 4/19 meeting as a group over zoom discussing different
  ideas for a general algorithm. We discussed BFS, DFS and a graph scenario, and we
@@ -20,10 +20,9 @@
  
  We met again the following week and tested the BFS and DFS implementations on SDL.
  After discussing during the meeting, we decided to try implementing one more
- algorithm, the flood filled algorithm, in order to decrease our time.
+ algorithm, the A* algorithm, in order to decrease our time.
  
- On 5/3, we discussed again and tested the flood filled algorithm; we achived a
- faster runtime and so we decided to use that in our main function.
+ On 5/3-5/6, we discussed again and tested the BFS and A* algorithm.
 */
 
 #ifndef NEXTMOVEFUNCTION_H_
