@@ -57,8 +57,8 @@ stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
 /*
  * Description: Builds a path that backtracks from the current position to the start and then proceeds toward a target node.
  * Return: Stack containing the directions required for traversal.
- * Precondition: 
- * Postcondition: 
+ * Precondition: parentMap must contain valid parent relationships for all required nodes.
+ * Postcondition: A valid traversal path is returned in stack form.
  *
 */
 stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
