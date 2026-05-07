@@ -324,7 +324,9 @@ void initializeBFS_TeamOne(pair<int, int>& startPos,
 
     pair<int, int> start = startPos;
     pointQueue.push(start);
-    parentMap[{start.first, start.second}] = {start, NORTH}; // dummy value to represent the start point
+
+    // dummy value to represent the start point
+    parentMap[{start.first, start.second}] = {start, NORTH}; 
     isQueueInitialized = true;
 }
 
@@ -333,7 +335,8 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
                               pair<int, int>& startLocation,
                               pair<int, int>& currentLocation,
                               queue<pair<int, int>>& pointQueue,
-                              Racer* car, map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap) {
+                              Racer* car, map<pair<int,int>, 
+                              pair<pair<int, int>, DIRECTION>>& parentMap) {
     // static variables declarations inside function
 
     // Note from TJ: I'm contemplating whether or not I should use color so I'm omitting for now
@@ -373,7 +376,8 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
             //pathToTarget = reconstructPath_TeamOne(currentLocation, targetLocation, parentMap);
             // cout << "Building path from: " << currentLocation.first << "," << currentLocation.second
             //      << " to target: " << targetLocation.first << "," << targetLocation.second << endl;
-            //pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, targetLocation, parentMap);
+            //pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, 
+                                                              targetLocation, parentMap);
 
             //Are we right next to the target location?
             if (parentMap.count(targetLocation) &&
@@ -381,7 +385,8 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
                 pathToTarget = stack<DIRECTION>();
                 pathToTarget.push(parentMap.at(targetLocation).second);
             } else {
-                pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, targetLocation, parentMap);
+                pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, 
+                                                                 targetLocation, parentMap);
             }
 
             // cout << "PATH SIZE " << pathToTarget.size() << endl;
