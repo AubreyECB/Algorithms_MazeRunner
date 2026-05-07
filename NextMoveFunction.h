@@ -374,8 +374,10 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
               currentLocation.second == targetLocation.second)) {
             // path to the next unvisited node
             //pathToTarget = reconstructPath_TeamOne(currentLocation, targetLocation, parentMap);
-            // cout << "Building path from: " << currentLocation.first << "," << currentLocation.second
-            //      << " to target: " << targetLocation.first << "," << targetLocation.second << endl;
+            // cout << "Building path from: " 
+            //<< currentLocation.first << "," << currentLocation.second
+            //  << " to target: " << targetLocation.first << ","
+            //<< targetLocation.second << endl;
             //pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, 
                                                               targetLocation, parentMap);
 
