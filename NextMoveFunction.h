@@ -408,36 +408,6 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
                                                    pair<int, int> end,
                                                    pair<int, int> target,
                                                    map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap) {
-//FIXME - indices to match the global ------------------------
-    /*vector<DIRECTION> reversed;
-    stack<DIRECTION> path;
-
-    while (current != parentMap[current].first) {
-        cout << " DIRECTION " << parentMap[current].second << endl;
-        path.push(parentMap[current].second);
-        current = parentMap[current].first;
-    }
-
-    /* Loop until we step back to the start node
-    while (current != start) {
-        // parentMap[current] contains {previous_node, direction_to_reach_current}
-        auto entry = parentMap[current];
-        pair<int, int> parent = entry.first;
-        DIRECTION dirTaken = entry.second;
-
-        // Push the direction to the stack
-        path.push(dirTaken);
-
-        // Move current to the parent to continue backtracking
-        current = parent;
-    }
-
-    return path;
-
-    // reverse so first move is on top of stack
-    for (int i = reversed.size() - 1; i >= 0; i--) {
-        path.push(reversed[i]);
-    }*/
 
     stack<DIRECTION> backtrackToStart;
     queue<DIRECTION> forwardToTarget;
