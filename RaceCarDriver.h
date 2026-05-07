@@ -315,7 +315,7 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
     }*/
 
     stack<DIRECTION> backtrackToStart;
-    stack<DIRECTION> forwardToTarget;
+    queue<DIRECTION> forwardToTarget;
     stack<DIRECTION> finalPath;
     pair<int, int> current = end;
 
@@ -329,11 +329,14 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
     }
 
     // Leg 2: walk start → target forward through parentMap
+    //FIXME: Aubrey - Error here - attempting fix by using a queue to get FIFO behavior
     node = target;
     while (node != parentMap.at(node).first) {
         forwardToTarget.push(parentMap.at(node).second);
         node = parentMap.at(node).first;
     }
+
+
 
     // forwardToTarget is reversed (target→start), so it's already in the right
     // order to push onto finalPath after backtrackToStart
@@ -341,7 +344,7 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
     // Build finalPath: backtrack first, then forward
     // forwardToTarget goes in first (it's the bottom of the stack)
     while (!forwardToTarget.empty()) {
-        finalPath.push(forwardToTarget.top());
+        finalPath.push(forwardToTarget.front());
         forwardToTarget.pop();
     }
     // backtrackToStart goes on top (executes first)
@@ -503,6 +506,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
                  << " to target: " << targetLocation.first << "," << targetLocation.second << endl;
             //pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, targetLocation, parentMap);
 
+            //Are we right next to the target location?
             if (parentMap.count(targetLocation) &&
                 parentMap.at(targetLocation).first == currentLocation) {
                 pathToTarget = stack<DIRECTION>();
