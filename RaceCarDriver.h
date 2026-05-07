@@ -338,11 +338,13 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne( pair<int, int>&start,
         node = parentMap[node].first;
     }
 
-    for (int i = 0; i < pathDown.size(); i++) {
-        finalPath.push(pathDown[i]);
+    reverse(pathDown.begin(), pathDown.end()); // Reversing pathDown to get correct order from start to target
+
+    for (int i = pathDown.size()-1; i >= 0; i--) { // Reversed iteration
+        finalPath.push(pathDown[i - 1]);
     }
 
-    for (int i = 0; i < pathUp.size(); i++) {
+    for (int i = pathUp.size()-1; i >= 0; i--) { // Reversed iteration
         finalPath.push(pathUp[i]);
     }
 
@@ -400,12 +402,13 @@ bool canPathDirectly(pair<int,int> current, pair<int,int> target,
     if (parentMap.find(target) == parentMap.end()) return false;
 
     pair<int,int> node = target;
-    while (node != parentMap.at(node).first) {
+    while (true) { // Replaced node != parentMap.at(node).first with true
         if (node == current) return true;
+        if (node == parentMap.at(node).first) break; // Reached the start node
         node = parentMap.at(node).first;
     }
 
-    return node == current;
+    return node == current; // 
 }
 
 // function for BFS' next move (meant to be called in nextMoveTeamOne() when run == 0)
