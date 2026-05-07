@@ -1,8 +1,28 @@
-/*
- * RaceCarDriver.h
- *
- *  Created on: Spring, 2026
- *      Author: bill_booth
+/**
+ Author: Hannah Ross, Aubrey Bedford, TJ Ojo,
+            Emeka Umeezeoke, Madison Quinter
+ Assignment Title:  Group One Function
+ Assignment Description: This program inputs the 'a, b, and c'
+            values of the quadratic formula
+            from the user and uses them to calculate the formula's roots.
+ Due Date: 5/6/2026
+ Date Created: 4/19/2026
+ Date Last Modified: 5/6/2026
+
+ We began the process on 4/19 meeting as a group over zoom discussing different
+ ideas for a general algorithm. We discussed BFS, DFS and a graph scenario, and we
+ ultimately ended up deciding to write pseudocode for the BFS and DFS to begin.
+
+ We split the group-work as follows: TJ and Meka would work on the pseudocode and
+ implementation of BFS and DFS, and Hannah, Aubrey and Madison would work with SDL
+ Plotter and creating test cases and files. Each respective subgroup met throughout
+ the week to work on their sections.
+ 
+ After reanalyzing our approach to the project, we decided that implementing BFS would be the
+ best course of action. After completing the maze, and finding the start location, end location
+ and the walls, BFS was able to optimize its path for each 3 runs. 
+
+ We have copied eveyrthing under public, as well as our global functions. 
  */
 
 #ifndef RACECARDRIVER_H_
