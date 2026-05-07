@@ -38,7 +38,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
                               pair<int, int>& startLocation,
                               pair<int, int>& currentLocation,
                               queue<pair<int, int>>& pointQueue,
-                              Racer* car);
+                              Racer* car, map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap);
 vector<DIRECTION> nextMove_A_TeamOne(pair<int,int> start, pair<int,int> end, set<pair<int,int>>& wallsM);
 
 
@@ -60,13 +60,34 @@ public:
         static pair<int, int> startLocation = {0, 0};
         static pair<int, int> endLocation = {0, 0};
         static pair<int, int> currentLocation = {0, 0};
+        static map<pair<int,int>, pair<pair<int, int>, DIRECTION>> parentMap;
+
+        static stack<DIRECTION> pathToEnd;
 
         if(run == 0) {
             // RUN BSF 1 HERE
-            return BFSNextMove_TeamOne(walls, startLocation, currentLocation, pointQueue, car);
+            return BFSNextMove_TeamOne(walls, startLocation, currentLocation, pointQueue, car, parentMap);
         } else if (run == 1) {
             cout << "NEW RUN" << endl;
-            // RUN BETTER BSF
+            //If the end loc. is 0,0 that means it has not been set
+            if (endLocation == startLocation) {
+                //We have teleported to the beginning so currentLocation is the endLocation
+                endLocation = currentLocation;
+                currentLocation = startLocation;
+                pathToEnd = reconstructPath_TeamOne(startLocation, endLocation, parentMap);
+                DIRECTION nextMove = pathToEnd.top();
+                pathToEnd.pop();
+                updateCurrentLocation(currentLocation, nextMove);
+                return nextMove;
+            }
+            // RUN BETTER
+            if(!pathToEnd.empty()) {
+                DIRECTION nextMove = pathToEnd.top();
+                pathToEnd.pop();
+                updateCurrentLocation(currentLocation, nextMove);
+                return nextMove;
+            }
+
             // set endLocation to currentLocation here because
             // at this point, currentLocation is at the end
         } else {
@@ -425,7 +446,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
                               pair<int, int>& startLocation,
                               pair<int, int>& currentLocation,
                               queue<pair<int, int>>& pointQueue,
-                              Racer* car) {
+                              Racer* car, map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap) {
     // static variables declarations inside function
 
     // Note from TJ: I'm contemplating whether or not I should use color so I'm omitting for now
@@ -434,7 +455,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
     // start and end location were moved to be local to the TeamOneNextMove()
     static bool isPathing = false;
     static bool isQueueInitialized = false;
-    static map<pair<int,int>, pair<pair<int, int>, DIRECTION>> parentMap;
+
     // note: walls will also be present in this function because the
     // TeamOneNextMove() has it statically declared
 

@@ -98,7 +98,7 @@ int main(int argc, char ** argv)
 	//buildMaze(false, cells, walls, g);
     //saveMaze(walls, "/Users/Blaze/Documents/Intro_To_Algorithms/Algorithms_MazeRunner/testFiles/rightColGone_5x5");
 
-    readMaze(walls, "/Users/Blaze/Documents/Intro_To_Algorithms/Algorithms_MazeRunner/testFiles/rightColGone_5x5");
+    readMaze(walls, "/Users/Blaze/Documents/Intro_To_Algorithms/Algorithms_MazeRunner/testFiles/LargeMaze.txt");
     //readMaze(walls, "wallMaze2.txt");
     //readMaze(walls, "wallMaze3.txt");
 
