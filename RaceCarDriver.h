@@ -68,6 +68,7 @@ public:
             // RUN BSF 1 HERE
             return BFSNextMove_TeamOne(walls, startLocation, currentLocation, pointQueue, car, parentMap);
         } else if (run == 1) {
+            //After this run, we've now found the shortest path and go straight there
             cout << "NEW RUN" << endl;
             //If the end loc. is 0,0 that means it has not been set
             if (endLocation == startLocation) {
@@ -91,9 +92,23 @@ public:
             // set endLocation to currentLocation here because
             // at this point, currentLocation is at the end
         } else {
+            if (currentLocation == endLocation) {
+                currentLocation = startLocation;
+                pathToEnd = reconstructPath_TeamOne(startLocation, endLocation, parentMap);
+                DIRECTION nextMove = pathToEnd.top();
+                pathToEnd.pop();
+                updateCurrentLocation(currentLocation, nextMove);
+                return nextMove;
+            }
+            if(!pathToEnd.empty()) {
+                DIRECTION nextMove = pathToEnd.top();
+                pathToEnd.pop();
+                updateCurrentLocation(currentLocation, nextMove);
+                return nextMove;
+            }
             // RUN HEURISTIC
-            auto d = nextMovePlaceInside_TeamOne();
-            return d;
+            //auto d = nextMovePlaceInside_TeamOne();
+            //return d;
         }
     }
 };
