@@ -17,37 +17,37 @@
 using namespace std;
 
 /*
- * Description: 
- * Return: 
- * Precondition: 
- * Postcondition: 
+ * Description: Determines the next move for A*; computes a path once and returns directions one step at a time.
+ * Return: A DIRECTION value representing the next movement for the racer.
+ * Precondition: Maze data exists.
+ * Postcondition: Next direction is returned or fallback direction is returned (if no path exists).
  *
 */
 DIRECTION nextMovePlaceInside_TeamOne();
 
 /*
- * Description: 
- * Return: 
- * Precondition: 
- * Postcondition: 
+ * Description: Returns the opposite of the provided direction.
+ * Return: The inverse DIRRECTION of the given direction. 
+ * Precondition: dir is a DIRECTION.
+ * Postcondition: The opposite direction of dir.
  *
 */
 DIRECTION invertDirection(DIRECTION dir);
 
 /*
- * Description: 
- * Return: 
- * Precondition: 
- * Postcondition: 
+ * Description: Updates a coordinate pair to reflect movement in the specified direction.
+ * Return: None.
+ * Precondition: currentLocation must be a pair<int,int> and move is a DIRECTION.
+ * Postcondition: currentLocation is modified to represent the new location after moving.
  *
 */
 void updateCurrentLocation(pair<int, int>& currentLocation, DIRECTION move);
 
 /*
- * Description: 
- * Return: 
- * Precondition: 
- * Postcondition: 
+ * Description: Reconstructs a path from the start location to the end location using the parent map.
+ * Return: Stack containing the directions required to travel from start to the end.
+ * Precondition: parentMap must contain traversal history connecting start and end.
+ * Postcondition: A stack of directions represneting the reconstructed path is returned.
  *
 */
 stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
@@ -55,8 +55,8 @@ stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
                                          map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap);
 
 /*
- * Description: 
- * Return: 
+ * Description: Builds a path that backtracks from the current position to the start and then proceeds toward a target node.
+ * Return: Stack containing the directions required for traversal.
  * Precondition: 
  * Postcondition: 
  *
