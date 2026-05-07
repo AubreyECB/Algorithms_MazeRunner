@@ -462,30 +462,6 @@ void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
     const int NUM_DIRECTIONS = 4;
     DIRECTION directions[NUM_DIRECTIONS] = {NORTH, SOUTH, EAST, WEST}; // order of exploration: right, down, left, up
 
-    /*for (int i = 0; i < NUM_DIRECTIONS; i++) {
-        bool isWalll = car->look(directions[i]);
-        pair<int, int> neighbor = currentLocation;
-        updateCurrentLocation(neighbor, directions[i]);
-
-
-        // case where there is a wall in the direction we are looking, so we add it to the walls set
-        if (isWalll && neighbor.first >= 0 && neighbor.second >= 0) {
-            cout << "Wall? " << neighbor.first << " " << neighbor.second << endl;
-            walls.insert({neighbor.first, neighbor.second});
-        }
-
-            // case where there is no wall and there is a neighboring point to add
-            // however, we don't add it willy-nilly, we check if it's already in the parentMap to ensure
-            // we don't add duplicates to the queue, then we add it to the parentMap and the queue
-            // if its not in the parentMap already
-        else {
-            if (parentMap.find({neighbor.first, neighbor.second}) == parentMap.end()) {
-                parentMap[{neighbor.first, neighbor.second}] = {currentLocation, directions[i]};
-                pointQueue.push(neighbor);
-            }
-        }
-    }*/
-
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         bool isWall = car->look(directions[i]);
         pair<int, int> neighbor = currentLocation;
@@ -550,45 +526,6 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
 
     // set boolean to false so we can start the pathfinding and traversal process again
     isPathing = false;
-
-    /* loop while the pointQueue is not empty and we are not currently pathing to a target
-    // literally should never stop :)
-    while (!pointQueue.empty() && !isPathing) {
-        // peek at the targetLocation from the from of the queue
-        targetLocation = pointQueue.front();
-
-        // if we aren't at the targetLocation yet, take this branch
-        // we want to build the path to be able to explore targetLocation
-        if (!(currentLocation.first == targetLocation.first &&
-              currentLocation.second == targetLocation.second)) {
-            pathToTarget = reconstructPath_TeamOne(currentLocation, targetLocation, parentMap);
-            isPathing = true;
-            DIRECTION nextMove = pathToTarget.top();
-            pathToTarget.pop();
-            updateCurrentLocation(currentLocation, nextMove);
-            return nextMove;
-        }
-            // if we are at the targetLocation, we now want to explore the area around us
-        else {
-            // dequeue the targetLocation since we are now exploring it
-            pointQueue.pop();
-            // we aren't pathing to a target now, so set it to false
-            isPathing = false;
-            // explore the neighbors of the targetLocation and add them to the queue if they are valid
-            // also add the walls to the walls map that will be globally relative to this function and
-            // local relative to the TeamOneNextMove() function
-            exploreNeighbors_TeamOne(currentLocation, parentMap, pointQueue, walls, car);  //point queue is expree
-            pathToTarget = reconstructPath_Backtrack_TeamOne(currentLocation, startLocation, parentMap);
-            cout << "PATH SIZE " << pathToTarget.size() << endl;
-
-            isPathing = true;
-            DIRECTION nextMove = pathToTarget.top();
-            pathToTarget.pop();
-            updateCurrentLocation(currentLocation, nextMove);
-            cout << "RETURNING " << nextMove << endl;
-            return nextMove;
-        }
-    }*/
 
     while (!pointQueue.empty() && !isPathing) {
         targetLocation = pointQueue.front();
