@@ -86,10 +86,11 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
                                                    map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap);
 
 /*
- * Description: 
- * Return: 
- * Precondition: 
- * Postcondition: 
+ * Description: Explores all neighboring cells adjacent to the current location.
+ * Return: None.
+ * Precondition: currentLocation must represent a valid explored position and car must point to a valid Racer object.
+ * Postcondition:parentMap, pointQueue, and walls may be updated with newly discovered
+ * information about neighboring cells.
  *
 */
 void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
@@ -99,10 +100,10 @@ void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
                               Racer* car);
 
 /*
- * Description: 
- * Return: 
- * Precondition: 
- * Postcondition: 
+ * Description: Initializes the BFS traversal structures by inserting the starting position into the queue and parent map.
+ * Return: None.
+ * Precondition: startPos must contain a valid starting coordinate.
+ * Postcondition: The BFS queue and parent map are initialized and the initialization flag is set to true.
  *
 */
 void initializeBFS_TeamOne(pair<int, int>& startPos,
@@ -111,10 +112,12 @@ void initializeBFS_TeamOne(pair<int, int>& startPos,
                            bool& isQueueInitialized);
 
 /*
- * Description: 
- * Return: 
- * Precondition: 
- * Postcondition: 
+ * Description: Determines the next movement needed to continue traversing and exploring
+ * the maze environment.
+ * Return: The next DIRECTION the racer should move.
+ * Precondition: BFS data structures and the Racer pointer must be properly initialized.
+ * Postcondition: BFS traversal state, queue contents, parent map, and current location
+ * may be updated.
  *
 */
 DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
@@ -124,10 +127,10 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
                               Racer* car, map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap);
 
 /*
- * Description: 
- * Return: 
- * Precondition: 
- * Postcondition: 
+ * Description: Performs BFS from start and end location while avoiding known wall locations.
+ * Return: A vector containing directions required to reach the destination.
+ * Precondition: Start and end coordinates must be valid positions within the maze/grid.
+ * Postcondition: A computed shortest-path direction vector is returned if a path exists.
  *
 */
 vector<DIRECTION> nextMove_A_TeamOne(pair<int,int> start, pair<int,int> end, set<pair<int,int>>& wallsM);
