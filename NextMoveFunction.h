@@ -37,15 +37,6 @@
 using namespace std;
 
 /*
- * Description: Determines the next move for A*; computes a path once and returns directions one step at a time.
- * Return: A DIRECTION value representing the next movement for the racer.
- * Precondition: Maze data exists.
- * Postcondition: Next direction is returned or fallback direction is returned (if no path exists).
- *
-*/
-DIRECTION nextMovePlaceInside_TeamOne();
-
-/*
  * Description: Returns the opposite of the provided direction.
  * Return: The inverse DIRRECTION of the given direction. 
  * Precondition: dir is a DIRECTION.
@@ -133,8 +124,6 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
  * Postcondition: A computed shortest-path direction vector is returned if a path exists.
  *
 */
-vector<DIRECTION> nextMove_A_TeamOne(pair<int,int> start, pair<int,int> end, set<pair<int,int>>& wallsM);
-
 
 RaceCarDriver(Racer* p = nullptr): car{p}{}
 
@@ -201,167 +190,6 @@ RaceCarDriver(Racer* p = nullptr): car{p}{}
         }
     }
 };
-
-DIRECTION nextMovePlaceInside_TeamOne() {
-    static vector<DIRECTION> path;
-    static int pathIndex = 0;
-
-    cout << "inside helper " << endl;
-    // Only compute path once
-    if (path.empty()) {
-        set<pair<int,int>> wallsM;
-        path = nextMove_A_TeamOne({0, 0}, {2, 0}, wallsM={}); // FIXME: actual walls
-        for (auto& d : path){
-            if(d == EAST)  cout << "EAST" << endl;
-            if(d == WEST)  cout << "WEST" << endl;
-            if(d == NORTH) cout << "NORTH" << endl;
-            if(d == SOUTH) cout << "SOUTH" << endl;
-        }
-    }
-
-    if (pathIndex < path.size()) {
-        return path[pathIndex++];
-    }
-
-    path.clear();
-    pathIndex = 0;
-
-    return EAST; // fallback
-}
-
-struct A_Details_TeamOne{
-
-    int g;
-    double f, h;
-    int parent1, parent2;
-    int x, y; // where node is in maze
-
-};
-
-bool isValid_TeamOne(int x, int y){
-    return true;
-}
-
-bool isWall_TeamOne(set<pair<int,int>>& wallsM, int r, int c){
-    for (auto& w : wallsM){
-        if (w.first == r && w.second == c) return true;
-    }
-    return false;
-}
-
-vector<DIRECTION> nextMove_A_TeamOne(pair<int, int> start, pair<int, int> end, set<pair<int,int>>& wallsM){
-    A_Details_TeamOne begin{};
-    begin.f = 0;
-    vector<A_Details_TeamOne> open; // open to exploration
-    vector<A_Details_TeamOne> closed; // closed for eval
-
-    // FINAL PATHS FOR FINAL
-    vector<DIRECTION> finalDirection;
-
-    begin.x = start.first;
-    begin.y = start.second; // x and y of current
-    begin.parent1 = -1; // needs init before starting
-    begin.parent2 = -1;
-    begin.g = 0;
-    begin.h = 0;
-    begin.f = 0;
-
-    open.push_back(begin);
-
-    while(!open.empty()){
-        cout << "OPEN SIZE: " << open.size() << endl;
-
-        int bestIndex = 0;
-        for (int i = 1; i < open.size(); i++) {
-            if (open[i].f < open[bestIndex].f) {
-                bestIndex = i;
-            }
-        }
-
-        A_Details_TeamOne q = open[bestIndex];
-        open.erase(open.begin() + bestIndex);
-
-        closed.push_back(q);
-
-        cout << "q: " << q.x << "," << q.y << " open:" << open.size() << endl;
-
-        //  Finding Successors:
-        A_Details_TeamOne succ1{}; A_Details_TeamOne succ2{};
-        A_Details_TeamOne succ3{}; A_Details_TeamOne succ4{};
-
-        succ1.x = q.x + 1; succ1.y = q.y; // EAST
-        succ2.x = q.x-1; succ2.y = q.y; //WEST
-        succ3.x = q.x; succ3.y = q.y-1; // NORTH
-        succ4.x = q.x; succ4.y = q.y+1; // SOUTH
-
-        vector<A_Details_TeamOne> successors = {succ1, succ2, succ3, succ4};
-
-        for (auto& succ : successors){
-
-            if (!isValid_TeamOne(succ.x, succ.y)) continue;
-            if (isWall_TeamOne(wallsM, succ.x, succ.y)) continue;
-
-            // 1. GOAL CHECK FIRST
-            if (succ.x == end.first && succ.y == end.second){
-                succ.parent1 = q.x;
-                succ.parent2 = q.y;
-                closed.push_back(succ);
-
-                A_Details_TeamOne current = succ;
-                while (!(current.x == start.first && current.y == start.second)){
-                    for (auto& node : closed){
-                        if (node.x == current.parent1 && node.y == current.parent2){
-                            int dx = current.x - node.x;
-                            int dy = current.y - node.y;
-                            if      (dx == 1)  finalDirection.push_back(EAST);
-                            else if (dx == -1) finalDirection.push_back(WEST);
-                            else if (dy == 1)  finalDirection.push_back(SOUTH);
-                            else if (dy == -1) finalDirection.push_back(NORTH);
-                            current = node;
-                            break;
-                        }
-                    }
-                }
-                reverse(finalDirection.begin(), finalDirection.end());
-                return finalDirection; // return for car!
-            }
-
-            // 2. SET COSTS
-            succ.parent1 = q.x;
-            succ.parent2 = q.y;
-            succ.g = q.g + 1;
-            succ.h = abs(succ.x - end.first) + abs(succ.y - end.second);
-            succ.f = succ.g + succ.h;
-
-            // 3. CHECKS FOR SKIPPING
-            bool skip = false;
-            for (auto& open_val : open){
-                if (open_val.x == succ.x && open_val.y == succ.y){
-                    if (succ.g >= open_val.g){
-                        skip = true;
-                    } else {
-                        open_val.g = succ.g;
-                        open_val.f = succ.f;
-                        open_val.parent1 = q.x;
-                        open_val.parent2 = q.y;
-                        skip = true;
-                    }
-                    break;
-                }
-            }
-            for (auto& closed_val : closed){
-                if (closed_val.x == succ.x && closed_val.y == succ.y){
-                    if (succ.g >= closed_val.g) skip = true;
-                    break;
-                }
-            }
-
-            // 4. ADD TO OPEN LAST
-            if (!skip) open.push_back(succ);
-        }
-    }
-    return {}; // no path found?
-}
 
 // BFS FUNCTIONS AND HELPER FUNCTIONS FOR TEAM ONE
 
