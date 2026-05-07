@@ -147,7 +147,6 @@ RaceCarDriver(Racer* p = nullptr): car{p}{}
             return BFSNextMove_TeamOne(walls, startLocation, currentLocation, pointQueue, car, parentMap);
         } else if (run == 1) {
             //After this run, we've now found the shortest path and go straight there
-            cout << "NEW RUN" << endl;
             //If the end loc. is 0,0 that means it has not been set
             if (endLocation == startLocation) {
                 //We have teleported to the beginning so currentLocation is the endLocation
@@ -207,10 +206,10 @@ DIRECTION invertDirection(DIRECTION dir) {
 // function to update currentLocation with each movement
 void updateCurrentLocation(pair<int, int>& currentLocation, DIRECTION move) {
     switch (move) {
-        case NORTH: currentLocation.second--; cout << "N" << endl; break;
-        case SOUTH: currentLocation.second++; cout << "S" << endl; break;
-        case EAST:  currentLocation.first++; cout << "E" << endl; break;
-        case WEST:  currentLocation.first--; cout << "W" << endl; break;
+        case NORTH: currentLocation.second--; break;
+        case SOUTH: currentLocation.second++;  break;
+        case EAST:  currentLocation.first++;  break;
+        case WEST:  currentLocation.first--;  break;
     }
 }
 
@@ -362,8 +361,8 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
               currentLocation.second == targetLocation.second)) {
             // path to the next unvisited node
             //pathToTarget = reconstructPath_TeamOne(currentLocation, targetLocation, parentMap);
-            cout << "Building path from: " << currentLocation.first << "," << currentLocation.second
-                 << " to target: " << targetLocation.first << "," << targetLocation.second << endl;
+            // cout << "Building path from: " << currentLocation.first << "," << currentLocation.second
+            //      << " to target: " << targetLocation.first << "," << targetLocation.second << endl;
             //pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, targetLocation, parentMap);
 
             //Are we right next to the target location?
@@ -375,7 +374,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
                 pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation, currentLocation, targetLocation, parentMap);
             }
 
-            cout << "PATH SIZE " << pathToTarget.size() << endl;
+            // cout << "PATH SIZE " << pathToTarget.size() << endl;
             isPathing = true;
             DIRECTION nextMove = pathToTarget.top();
             pathToTarget.pop();
