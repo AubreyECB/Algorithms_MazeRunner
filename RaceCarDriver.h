@@ -342,7 +342,7 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne( pair<int, int>&start,
                                                     DIRECTION>>& parentMap) {
 
     cout << "Start in backtrack " << start.first << " " << start.second << endl;
-
+ /* E.U. Note: Logic Works good, but only for smaller mazes. Unecessarly goes ALL the way back to the start.
     vector<DIRECTION> pathUp;    // To go current -> start
     vector<DIRECTION> pathDown;  // To go start -> target
     stack<DIRECTION> finalPath;
@@ -370,8 +370,54 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne( pair<int, int>&start,
     }
 
     return finalPath;
+    */
 
+    // Build ancestor chain for current: current → ... → start
+    vector<pair<int,int>> currentAncestors;
+    pair<int,int> node = current;
+    while (true) {
+        currentAncestors.push_back(node);
+        if (node == parentMap.at(node).first) break; // reached root
+        node = parentMap.at(node).first;
+    }
+
+    // Walk target → start until we hit something in current's ancestor chain
+    // That's the LCA — the meeting point
+    set<pair<int,int>> ancestorSet(currentAncestors.begin(), currentAncestors.end());
+    vector<pair<int,int>> targetAncestors;
+    node = target;
+    while (ancestorSet.find(node) == ancestorSet.end()) {
+        targetAncestors.push_back(node);
+        node = parentMap.at(node).first;
+    }
+    pair<int,int> lca = node; // lowest common ancestor
+
+    // Leg 1: current → lca (inverted directions)
+    vector<DIRECTION> pathUp;
+    node = current;
+    while (node != lca) {
+        pathUp.push_back(invertDirection(parentMap.at(node).second));
+        node = parentMap.at(node).first;
+    }
+
+    // Leg 2: lca → target (forward directions)
+    // targetAncestors is [target, ..., child_of_lca] — reverse for lca→target
+    vector<DIRECTION> pathDown;
+    for (auto& n : targetAncestors) {
+        pathDown.push_back(parentMap.at(n).second);
+    }
+    reverse(pathDown.begin(), pathDown.end()); // now lca → target order
+
+    // Build stack: pathUp executes first (on top), pathDown executes second (on bottom)
+    stack<DIRECTION> finalPath;
+    for (int i = pathDown.size() - 1; i >= 0; i--)
+        finalPath.push(pathDown[i]);
+    for (int i = pathUp.size() - 1; i >= 0; i--)
+        finalPath.push(pathUp[i]);
+
+    return finalPath;
 }
+
 
 void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
                               map<pair<int,int>, pair<pair<int, int>,
@@ -492,16 +538,20 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
 
         if (currentLocation != targetLocation) {
             if (pathToTarget.empty()) {
-                if (canPathDirectly(currentLocation,
-                                    targetLocation, parentMap)) {
-                    pathToTarget = reconstructPath_TeamOne(currentLocation,
-                                                           targetLocation, parentMap);
-                } else {
-                    cout << "Start in func " << startLocation.first << " " << startLocation.second << endl;
-                    pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation,
-                                                                     currentLocation,
-                                                                     targetLocation, parentMap);
-                }
+                // E.U. Note: Better optomized version below.
+                // if (canPathDirectly(currentLocation,
+                //                     targetLocation, parentMap)) {
+                //     pathToTarget = reconstructPath_TeamOne(currentLocation,
+                //                                            targetLocation, parentMap);
+                // } else {
+                //     cout << "Start in func " << startLocation.first << " " << startLocation.second << endl;
+                //     pathToTarget = reconstructPath_Backtrack_TeamOne(startLocation,
+                //                                                      currentLocation,
+                //                                                      targetLocation, parentMap);
+                // }
+
+                pathToTarget = reconstructPath_TeamOne(currentLocation,
+                                                       targetLocation, parentMap);
             }
 
             DIRECTION nextMove = pathToTarget.top();
