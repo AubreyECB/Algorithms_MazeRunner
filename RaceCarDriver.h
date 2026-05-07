@@ -298,18 +298,39 @@ stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
                                          map<pair<int,int>,
                                          pair<pair<int, int>,
                                          DIRECTION>>& parentMap) {
-    stack<DIRECTION> path;
-    pair<int, int> current = end;
+    // stack<DIRECTION> path; // <- E.U. Note: Momentarily commented out.
+    // pair<int, int> current = end;
 
-    while (!(current.first == start.first && current.second == start.second)) {
-        pair<pair<int, int>, DIRECTION> parent = parentMap[{current.first,
-                                                           current.second}];
-        path.push(parent.second);
-        current = parent.first;
-        cout << "DIREC " << parent.second << endl;
+    // while (!(current.first == start.first && current.second == start.second)) {
+    //     pair<pair<int, int>, DIRECTION> parent = parentMap[{current.first,
+    //                                                        current.second}];
+    //     path.push(parent.second);
+    //     current = parent.first;
+    //     cout << "DIREC " << parent.second << endl;
+    // }
+
+    // return path;
+
+     vector<DIRECTION> path;
+    pair<int,int> current = end;
+
+    // Walk end → start, collecting directions
+    while (current != start) {
+        auto& entry = parentMap.at(current);
+        path.push_back(entry.second);  // direction used to reach 'current'
+        current = entry.first;
     }
 
-    return path;
+    // path is [dir_to_end, ..., dir_from_start] — reverse for start→end order
+    reverse(path.begin(), path.end());
+
+    // Convert to stack so first step (path[0]) ends up on top
+    stack<DIRECTION> result;
+    for (int i = path.size() - 1; i >= 0; i--)
+        result.push(path[i]);
+
+    return result;
+
 }
 
 // function for reconstructPath_Backtrack_TeamOne()
@@ -341,7 +362,7 @@ stack<DIRECTION> reconstructPath_Backtrack_TeamOne( pair<int, int>&start,
     reverse(pathDown.begin(), pathDown.end()); // Reversing pathDown to get correct order from start to target
 
     for (int i = pathDown.size()-1; i >= 0; i--) { // Reversed iteration
-        finalPath.push(pathDown[i - 1]);
+        finalPath.push(pathDown[i]);
     }
 
     for (int i = pathUp.size()-1; i >= 0; i--) { // Reversed iteration
@@ -443,7 +464,7 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
         DIRECTION nextMove = pathToTarget.top();
         pathToTarget.pop();
         updateCurrentLocation(currentLocation, nextMove);
-        cout << "NExt move " << nextMove << endl;
+        cout << "Next move " << nextMove << endl;
         return nextMove;
     }
 
