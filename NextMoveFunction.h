@@ -18,8 +18,9 @@
  Plotter and creating test cases and files. Each respective subgroup met throughout
  the week to work on their sections.
  
- After reanalyzing our approach to the project, we decided that implementing BFS would be the
- best course of action. After completing the maze, and finding the start location, end location
+ After reanalyzing our approach to the project, we decided that implementing BFS 
+ would be the best course of action. After completing the maze, and finding the 
+ start location, end location
  and the walls, BFS was able to optimize its path for each 3 runs. 
 
  We have copied eveyrthing under public, as well as our global functions. 
@@ -55,7 +56,8 @@ DIRECTION invertDirection(DIRECTION dir);
 void updateCurrentLocation(pair<int, int>& currentLocation, DIRECTION move);
 
 /*
- * Description: Reconstructs a path from the start location to the end location using the parent map.
+ * Description: Reconstructs a path from the start location to the end location using the 
+ * parent map.
  * Return: Stack containing the directions required to travel from start to the end.
  * Precondition: parentMap must contain traversal history connecting start and end.
  * Postcondition: A stack of directions represneting the reconstructed path is returned.
@@ -63,10 +65,12 @@ void updateCurrentLocation(pair<int, int>& currentLocation, DIRECTION move);
 */
 stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
                                          pair<int, int> end,
-                                         map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap);
+                                         map<pair<int,int>, pair<pair<int, int>, 
+                                         DIRECTION>>& parentMap);
 
 /*
- * Description: Builds a path that backtracks from the current position to the start and then proceeds toward a target node.
+ * Description: Builds a path that backtracks from the current position to the start and 
+ * then proceeds toward a target node.
  * Return: Stack containing the directions required for traversal.
  * Precondition: parentMap must contain valid parent relationships for all required nodes.
  * Postcondition: A valid traversal path is returned in stack form.
@@ -74,12 +78,14 @@ stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
 */
 stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
                                                    pair<int, int> end,
-                                                   map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap);
+                                                   map<pair<int,int>, pair<pair<int, int>, 
+                                                   DIRECTION>>& parentMap);
 
 /*
  * Description: Explores all neighboring cells adjacent to the current location.
  * Return: None.
- * Precondition: currentLocation must represent a valid explored position and car must point to a valid Racer object.
+ * Precondition: currentLocation must represent a valid explored position and car must point 
+ * to a valid Racer object.
  * Postcondition:parentMap, pointQueue, and walls may be updated with newly discovered
  * information about neighboring cells.
  *
@@ -91,10 +97,12 @@ void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
                               Racer* car);
 
 /*
- * Description: Initializes the BFS traversal structures by inserting the starting position into the queue and parent map.
+ * Description: Initializes the BFS traversal structures by inserting the starting position 
+ * into the queue and parent map.
  * Return: None.
  * Precondition: startPos must contain a valid starting coordinate.
- * Postcondition: The BFS queue and parent map are initialized and the initialization flag is set to true.
+ * Postcondition: The BFS queue and parent map are initialized and the initialization flag
+ * is set to true.
  *
 */
 void initializeBFS_TeamOne(pair<int, int>& startPos,
@@ -115,7 +123,8 @@ DIRECTION BFSNextMove_TeamOne(set<pair<int,int>>& walls,
                               pair<int, int>& startLocation,
                               pair<int, int>& currentLocation,
                               queue<pair<int, int>>& pointQueue,
-                              Racer* car, map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap);
+                              Racer* car, map<pair<int,int>, pair<pair<int, int>, 
+                              DIRECTION>>& parentMap);
 
 /*
  * Description: Performs BFS from start and end location while avoiding known wall locations.
@@ -144,7 +153,8 @@ RaceCarDriver(Racer* p = nullptr): car{p}{}
 
         if(run == 0) {
             // RUN BSF 1 HERE
-            return BFSNextMove_TeamOne(walls, startLocation, currentLocation, pointQueue, car, parentMap);
+            return BFSNextMove_TeamOne(walls, startLocation, currentLocation, pointQueue, 
+             car, parentMap);
         } else if (run == 1) {
             //After this run, we've now found the shortest path and go straight there
             //If the end loc. is 0,0 that means it has not been set
@@ -216,7 +226,8 @@ void updateCurrentLocation(pair<int, int>& currentLocation, DIRECTION move) {
 // function for reconstructPath_TeamOne()
 stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
                                          pair<int, int> end,
-                                         map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap) {
+                                         map<pair<int,int>, pair<pair<int, int>, 
+                                         DIRECTION>>& parentMap) {
 
     stack<DIRECTION> path;
     pair<int, int> current = end;
@@ -234,7 +245,8 @@ stack<DIRECTION> reconstructPath_TeamOne(pair<int, int> start,
 stack<DIRECTION> reconstructPath_Backtrack_TeamOne(pair<int, int> start,
                                                    pair<int, int> end,
                                                    pair<int, int> target,
-                                                   map<pair<int,int>, pair<pair<int, int>, DIRECTION>>& parentMap) {
+                                                   map<pair<int,int>, pair<pair<int, int>, 
+                                                   DIRECTION>>& parentMap) {
 
     stack<DIRECTION> backtrackToStart;
     queue<DIRECTION> forwardToTarget;
@@ -284,10 +296,8 @@ void exploreNeighbors_TeamOne(pair<int, int> currentLocation,
                               set<pair<int,int>>& walls,
                               Racer* car) {
 
-    //FIXME - indices to match the global ------------------------
-
     const int NUM_DIRECTIONS = 4;
-    DIRECTION directions[NUM_DIRECTIONS] = {NORTH, SOUTH, EAST, WEST}; // order of exploration: right, down, left, up
+    DIRECTION directions[NUM_DIRECTIONS] = {NORTH, SOUTH, EAST, WEST}; 
 
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         bool isWall = car->look(directions[i]);
